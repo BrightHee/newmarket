@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>뉴마켓</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/node_modules/font-awesome/css/font-awesome.min.css">
+    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            outline: none;
+        }
+        .main-section-1 {
+            background-color: #E4E5D5;
+            margin-bottom: 0;
+        }
+        .main-section-2 {
+            background-color: #FBF7F2;
+            margin-bottom: 0;
+        }
+        .main-section-1 > div,
+        .main-section-2 > div {
+            display: inline-block;
+        }
+        .main-title {
+            font-size: 3rem;
+            color: #322122;
+            margin-bottom: 3rem;
+            padding-top: 8rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-sm bg-light navbar-light">
+    <div class="container d-flex justify-content-between px-0">
+        <a class="navbar-brand" th:href="@{/}">
+            <img src="/images/logo.png" alt="로고 이미지" width="100" />
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarHeader"
+                aria-controls="navbarHeader" aria-expanded="false" aria-label="toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarHeader">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <form class="form-inline" th:action="@{/search/product}" method="get">
+                        <div class="input-group">
+                            <input class="form-control" name="keyword" type="search" placeholder="상품명 검색" aria-label="상품명 검색" />
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-primary" type="submit">
+                                    <i class="fa fa-search" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/sign-up}"><i class="fa fa-user-plus" aria-hidden="true"></i> Sign Up</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/login}"><i class="fa fa-sign-in" aria-hidden="true"></i> Login</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<section class="jumbotron text-center main-section-1">
+    <div class="container">
+        <img class="float-left" src="/images/example.png" alt="메인 페이지 사진1" width="467" height="525" />
+        <div class="float-right text-left">
+            <h1 class="main-title">오늘은 어떤 옷이 있을까?</h1>
+            <p class="lead text-muted">
+                머리부터 발끝까지 일상의 옷들을 구매하고 판매해보세요.<br />
+                매일 새로운 옷들이 기다리고 있답니다.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="jumbotron text-center main-section-2">
+    <div class="container">
+        <img class="float-right" src="/images/example.png" alt="메인 페이지 사진2" width="467" height="525" />
+        <div class="float-left text-left">
+            <h1 class="main-title">서비스 이용하기</h1>
+            <p>
+                <a th:href="@{/new-product}" class="btn btn-info">상품 등록하기</a>
+                <a th:href="@{/products}" class="btn btn-info">전체 상품보기</a>
+                <a th:href="@{/products}" class="btn btn-info">내가 원하는 상품보기</a>
+            </p>
+        </div>
+    </div>
+</section>
+
+<div class="container">
+    <div class="row justify-content-center pt-3">
+        <h1 class="main-title">인기 상품보기</h1>
+<!--        최근 인기 매물 (카드 뷰로 db 에서 조회해서 보여줌) -->
+    </div>
+</div>
+
+<footer class="py-4 bg-dark text-white-50">
+    <div class="container">
+        <img src="/images/logo_white.png" alt="로고 이미지" width="120" />
+        <p class="float-right">
+            <a href="#" class="btn btn-outline-light">top</a>
+        </p>
+        <small class="d-block text-center">Copyright &copy; 2020</small>
+    </div>
+</footer>
+
+</body>
+</html>

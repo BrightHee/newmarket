@@ -1,13 +1,13 @@
-package com.newmarket.newmarket;
+package com.newmarket;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class NewmarketApplication {
+public class Application {
 
     public static void main(String[] args) {
-        SpringApplication.run(NewmarketApplication.class, args);
+        SpringApplication.run(Application.class, args);
     }
 
 }
