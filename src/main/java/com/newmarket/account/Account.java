@@ -1,9 +1,12 @@
 package com.newmarket.account;
 
+import lombok.*;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
+@Getter @Setter @EqualsAndHashCode(of = "id")
 public class Account {
 
     @Id @GeneratedValue
@@ -34,17 +37,17 @@ public class Account {
     private String profileImage;
 
     // 관심 있는 물품이나 설정한 지역의 물품이 등록되면 알림으로 받을 것인지 결정
-    private boolean productRegisteredByWeb;
+    private boolean productRegisteredByWeb = true;
 
     private boolean productRegisteredByEmail;
 
     // 판매자가 구매 신청을 받으면 알림으로 받을 것인지 결정
-    private boolean purchaseRegisteredByWeb;
+    private boolean purchaseRegisteredByWeb = true;
 
     private boolean purchaseRegisteredByEmail;
 
     // 구매자가 구매 신청 결과를 받으면 알림으로 받을 것인지 결정
-    private boolean purchaseResultByWeb;
+    private boolean purchaseResultByWeb = true;
 
     private boolean purchaseResultByEmail;
 

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>뉴마켓</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/node_modules/font-awesome/css/font-awesome.min.css">
+    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-sm bg-light navbar-light">
+    <div class="container d-flex justify-content-between px-0">
+        <a class="navbar-brand" th:href="@{/}">
+            <img src="/images/logo.png" alt="로고 이미지" width="100" />
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarHeader"
+                aria-controls="navbarHeader" aria-expanded="false" aria-label="toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarHeader">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <form class="form-inline" th:action="@{/search/product}" method="get">
+                        <div class="input-group">
+                            <input class="form-control" name="keyword" type="search" placeholder="상품명 검색" aria-label="상품명 검색" />
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-primary" type="submit">
+                                    <i class="fa fa-search" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/sign-up}"><i class="fa fa-user-plus" aria-hidden="true"></i> 회원가입</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/login}"><i class="fa fa-sign-in" aria-hidden="true"></i> 로그인</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container my-3">
+    <div class="card bg-light">
+        <article class="card-body mx-auto">
+            <h4 class="card-title mt-5 text-center">계정 생성</h4>
+            <form class="needs-validation" th:object="${signUpForm}"
+                  th:action="@{/sign-up}" method="post" novalidate>
+                <div class="form-group mt-4">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"> <i class="fa fa-user-circle"></i> </span>
+                        </div>
+                        <input th:field="*{nickname}" class="form-control" name="nickname" type="text"
+                               placeholder="닉네임을 입력하세요." minlength="2" max="20" required />
+                    </div>
+                    <small class="form-text text-muted">
+                        공백없이 글자 및 숫자로 2자이상 20자이내로 입력하세요. 추후 닉네임 변경이 가능합니다.
+                    </small>
+                    <small class="invalid-feedback">닉네임을 입력하세요.</small>
+                    <small th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}" class="form-text text-danger">잘못된 닉네임</small>
+                </div>
+                <div class="form-group mt-4">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"> <i class="fa fa-envelope"></i> </span>
+                        </div>
+                        <input th:field="*{email}" class="form-control" name="email" type="email"
+                               placeholder="이메일을 입력하세요." required />
+                    </div>
+                    <small class="form-text text-muted">
+                        이메일 인증을 받으면 서비스를 이용하실 수 있습니다. <br />
+                        (절대로 사용자의 이메일을 타인에게 공개하지 않습니다)
+                    </small>
+                    <small class="invalid-feedback">이메일을 입력하세요.</small>
+                    <small th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="form-text text-danger">잘못된 이메일</small>
+                </div>
+                <div class="form-group mt-4">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"> <i class="fa fa-lock"></i> </span>
+                        </div>
+                        <input th:field="*{password}" class="form-control" name="password" type="password"
+                               placeholder="비밀번호를 입력하세요." minlength="8" maxlength="30" required />
+                    </div>
+                    <small class="form-text text-muted">
+                        영문자 + 숫자 + 특수기호를 조합하여 8자 이상 30자 이내로 입력하세요. <br />
+                        (되도록 복잡한 비밀번호를 조합하는 것이 좋습니다)
+                    </small>
+                    <small class="invalid-feedback">비밀번호를 입력하세요.</small>
+                    <small th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="form-text text-danger">잘못된 비밀번호</small>
+                </div>
+                <div class="form-group mt-4">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"> <i class="fa fa-lock"></i> </span>
+                        </div>
+                        <input th:field="*{passwordAgain}" class="form-control" name="password" type="password"
+                               placeholder="다시 한 번 비밀번호를 입력하세요." minlength="8" maxlength="30" required />
+                    </div>
+                    <small class="invalid-feedback">다시 한 번 비밀번호를 입력하세요.</small>
+                    <small th:if="${#fields.hasErrors('passwordAgain')}" th:errors="*{passwordAgain}" class="form-text text-danger">잘못된 비밀번호</small>
+                </div>
+                <div class="form-group mt-4 mb-0">
+                    <button type="submit" class="btn btn-primary btn-block"> 회원가입 </button>
+                </div>
+                <p class="text-center mt-2">계정이 있으신가요? <a th:href="@{/login}">로그인</a> </p>
+            </form>
+        </article>
+    </div>
+</div>
+
+<footer class="py-4 bg-dark text-white-50">
+    <div class="container">
+        <img src="/images/logo_white.png" alt="로고 이미지" width="120" />
+        <p class="float-right">
+            <a href="#" class="btn btn-outline-light">top</a>
+        </p>
+        <small class="d-block text-center">Copyright &copy; 2020</small>
+    </div>
+</footer>
+
+<script type="application/javascript">
+    (function () {
+        'use strict';
+
+        window.addEventListener('load', function () {
+            var forms = document.getElementsByClassName('needs-validation');
+            Array.prototype.filter.call(forms, function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (form.checkValidity() === false) { // 유효하지 않으면 not submit
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    }());
+</script>
+
+</body>
+</html>
