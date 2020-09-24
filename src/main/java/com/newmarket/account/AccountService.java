@@ -3,14 +3,22 @@ package com.newmarket.account;
 import com.newmarket.account.form.SignUpForm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class AccountService {
 
-    private AccountRepository accountRepository;
+    private final AccountRepository accountRepository;
 
-    public Account saveNewAccount(SignUpForm signUpForm) {
+    public Account signUp(SignUpForm signUpForm) {
+        Account account = saveNewAccount(signUpForm);
+        // 인증 이메일 보내기
+        return account;
+    }
+
+    private Account saveNewAccount(SignUpForm signUpForm) {
         Account account = new Account();
         account.setEmail(signUpForm.getEmail());
         account.setNickname(signUpForm.getNickname());
