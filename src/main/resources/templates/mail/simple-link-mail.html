@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="/css/certification-token.css">
+    <title>Email</title>
+</head>
+<body>
+
+<main class="container">
+    <div class="main-text">
+        <p> 회원님의 닉네임이 <span th:text="${nickname}"></span>이(가) 아닐 경우 이메일 내 링크를 클릭하지 마세요!</p>
+        <h2> 안녕하세요! <span th:text="${nickname}"></span>님 </h2>
+        <p>
+            <span th:text="${message}"></span>
+        </p>
+        중요: 메일은 10분간 유효합니다. 10분 내로 절차를 진행해 주시기 바랍니다.
+        <div>
+            <a th:href="${link}"> <button th:text="${linkMessage}"></button> </a>
+        </div>
+        <small>링크가 동작하지 않는다면 <span th:text="${link}"></span>로 접속해주세요.</small>
+    </div>
+</main>
+
+<footer class="container">
+    <p>뉴마켓 &copy; 2020</p>
+</footer>
+
+</body>
+</html>

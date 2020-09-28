@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Getter @Setter @EqualsAndHashCode(of = "id")
@@ -24,9 +25,9 @@ public class Account {
 
     private boolean emailVerified;
 
-    private String emailCheckToken;
+    private String certificationToken;
 
-    private LocalDateTime emailCheckTokenGeneratedDateTime;
+    private LocalDateTime certificationTokenGeneratedLocalDateTime;
 
     private LocalDateTime joinedDateTime;
 
@@ -55,4 +56,18 @@ public class Account {
 
     private boolean purchaseResultByEmail;
 
+    public void createCertificationToken() {
+        this.certificationToken = UUID.randomUUID().toString();
+        this.certificationTokenGeneratedLocalDateTime = LocalDateTime.now();
+    }
+
+    public boolean isValidToken(String token) {
+        return this.certificationToken.equals(token)
+                && this.certificationTokenGeneratedLocalDateTime.plusMinutes(10).isAfter(LocalDateTime.now());
+    }
+
+    public void finishSignUp() {
+        this.emailVerified = true;
+        this.joinedDateTime = LocalDateTime.now();
+    }
 }
