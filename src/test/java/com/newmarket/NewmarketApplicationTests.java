@@ -1,4 +1,4 @@
-package com.newmarket.newmarket;
+package com.newmarket;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
