@@ -1,5 +1,6 @@
 package com.newmarket.account.form;
 
+import lombok.Builder;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 

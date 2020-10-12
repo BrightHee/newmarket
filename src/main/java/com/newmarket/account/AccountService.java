@@ -4,6 +4,7 @@ import com.newmarket.account.form.SignUpForm;
 import com.newmarket.config.AppProperties;
 import com.newmarket.mail.EmailMessage;
 import com.newmarket.mail.EmailService;
+import com.newmarket.mail.HtmlEmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
