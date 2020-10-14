@@ -14,7 +14,7 @@ import javax.mail.internet.MimeMessage;
 
 @Slf4j
 @Component
-@Profile({"test"})
+@Profile({"local", "test"})
 @RequiredArgsConstructor
 public class ConsoleEmailService implements EmailService {
 

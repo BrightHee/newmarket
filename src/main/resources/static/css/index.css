@@ -1,0 +1,28 @@
+* {
+    padding: 0;
+    margin: 0;
+    outline: none;
+}
+body {
+    background-color: #e1e1e1;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.main-section-1 {
+    background-color: #E4E5D5;
+    margin-bottom: 0;
+}
+.main-section-2 {
+    background-color: #FBF7F2;
+    margin-bottom: 0;
+}
+.main-section-1 > div,
+.main-section-2 > div {
+    display: inline-block;
+}
+.main-title {
+    font-size: 3rem;
+    color: #322122;
+    margin-bottom: 3rem;
+    padding-top: 8rem;
+    font-weight: 600;
+}

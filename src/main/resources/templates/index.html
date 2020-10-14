@@ -6,76 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="/node_modules/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/index.css">
     <script src="/node_modules/jquery/dist/jquery.min.js"></script>
     <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
-    <style>
-        * {
-            padding: 0;
-            margin: 0;
-            outline: none;
-        }
-        body {
-            background-color: #e1e1e1;
-            font-family: Arial, Helvetica, sans-serif;
-        }
-        .main-section-1 {
-            background-color: #E4E5D5;
-            margin-bottom: 0;
-        }
-        .main-section-2 {
-            background-color: #FBF7F2;
-            margin-bottom: 0;
-        }
-        .main-section-1 > div,
-        .main-section-2 > div {
-            display: inline-block;
-        }
-        .main-title {
-            font-size: 3rem;
-            color: #322122;
-            margin-bottom: 3rem;
-            padding-top: 8rem;
-            font-weight: 600;
-        }
-    </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-sm bg-light navbar-light">
-    <div class="container d-flex justify-content-between px-0">
-        <a class="navbar-brand" th:href="@{/}">
-            <img src="/images/logo.png" alt="로고 이미지" width="100" />
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarHeader"
-                aria-controls="navbarHeader" aria-expanded="false" aria-label="toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarHeader">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <form class="form-inline" th:action="@{/search/product}" method="get">
-                        <div class="input-group">
-                            <input class="form-control" name="keyword" type="search" placeholder="상품명 검색" aria-label="상품명 검색" />
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-primary" type="submit">
-                                    <i class="fa fa-search" aria-hidden="true"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </li>
-            </ul>
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/sign-up}"><i class="fa fa-user-plus" aria-hidden="true"></i> 회원가입</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/login}"><i class="fa fa-sign-in" aria-hidden="true"></i> 로그인</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<nav th:replace="fragments.html :: main-nav"></nav>
 
 <section class="jumbotron text-center main-section-1">
     <div class="container">
@@ -111,15 +48,7 @@
     </div>
 </div>
 
-<footer class="py-4 bg-dark text-white-50">
-    <div class="container">
-        <img src="/images/logo_white.png" alt="로고 이미지" width="120" />
-        <p class="float-right">
-            <a href="#" class="btn btn-outline-light">top</a>
-        </p>
-        <small class="d-block text-center">뉴마켓 &copy; 2020</small>
-    </div>
-</footer>
+<footer th:replace="fragments.html :: main-footer"></footer>
 
 </body>
 </html>
