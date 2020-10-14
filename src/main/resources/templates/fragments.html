@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"
-      xmlns:th="http://www.thymeleaf.org">
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head th:fragment="head">
     <meta charset="UTF-8">
@@ -11,6 +12,7 @@
     <link rel="stylesheet" href="/css/common.css">
     <script src="/node_modules/jquery/dist/jquery.min.js"></script>
     <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    <script src="/node_modules/jdenticon/dist/jdenticon.min.js"></script>
 </head>
 
 <nav th:fragment="main-nav" class="navbar navbar-expand-sm bg-light navbar-light">
@@ -38,11 +40,31 @@
                 </li>
             </ul>
             <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
+                <li sec:authorize="!isAuthenticated()" class="nav-item">
                     <a class="nav-link" th:href="@{/sign-up}"><i class="fa fa-user-plus" aria-hidden="true"></i> 회원가입</a>
                 </li>
-                <li class="nav-item">
+                <li sec:authorize="!isAuthenticated()" class="nav-item">
                     <a class="nav-link" th:href="@{/login}"><i class="fa fa-sign-in" aria-hidden="true"></i> 로그인</a>
+                </li>
+                <li sec:authorize="isAuthenticated()" class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <svg th:if="${#strings.isEmpty(account?.profileImage)}" th:data-jdenticon-value="${#authentication.name}"
+                             class="rounded border bg-light" width="24" height="24" />
+                        <img th:if="${!#strings.isEmpty(account?.profileImage)}" th:src="${account.profileImage}"
+                             class="rounded border" width="24" height="24" />
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="userDropdown">
+                        <!-- TODO: th:href -->
+                        <a class="dropdown-item" href="#"><span th:text="${account?.nickname}"></span></a>
+                        <a class="dropdown-item" href="#">구매 정보보기</a>
+                        <a class="dropdown-item" href="#">판매 정보보기</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">내 정보 변경하기</a>
+                        <form th:action="@{/logout}" method="post">
+                            <button type="submit" class="dropdown-item btn btn-link">로그아웃</button>
+                        </form>
+                    </div>
                 </li>
             </ul>
         </div>
