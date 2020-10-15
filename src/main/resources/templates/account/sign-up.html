@@ -9,7 +9,8 @@
 <div class="container my-3">
     <div class="card bg-light py-5">
         <article class="card-body mx-auto">
-            <h4 class="card-title mt-5 text-center">계정 생성</h4>
+            <h4 class="card-title mb-4 mt-1 text-center">계정 생성</h4>
+            <hr>
             <form class="needs-validation" th:object="${signUpForm}"
                   th:action="@{/sign-up}" method="post" novalidate>
                 <div class="form-group mt-4">
