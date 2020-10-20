@@ -4,6 +4,7 @@ import com.newmarket.MockMvcTest;
 import com.newmarket.account.form.SignUpForm;
 import com.newmarket.mail.EmailMessage;
 import com.newmarket.mail.EmailService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,8 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -38,7 +41,8 @@ class AccountControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("account/sign-up"))
-                .andExpect(model().attributeExists("signUpForm"));
+                .andExpect(model().attributeExists("signUpForm"))
+                .andExpect(unauthenticated());
     }
 
     @DisplayName("회원 가입 처리 - 입력값 정상")
@@ -52,14 +56,14 @@ class AccountControllerTest {
                     .with(csrf()))
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/"));
+                .andExpect(redirectedUrl("/"))
+                .andExpect(authenticated().withUsername("테스트계정"));
 
         Account account = accountRepository.findByEmail("test@email.com");
         assertNotNull(account);
         assertNotEquals(account.getPassword(), "abcd1234!");  // 패스워드 인코딩 확인
         assertNotNull(account.getCertificationToken());
         then(emailService).should(times(1)).sendEmail(any(EmailMessage.class));  // 이메일 보내는지 확인
-        // TODO: 자동 로그인 확인
     }
 
     @DisplayName("회원 가입 처리 - 입력값 오류")
@@ -74,7 +78,8 @@ class AccountControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("account/sign-up"))
-                .andExpect(model().hasErrors());
+                .andExpect(model().hasErrors())
+                .andExpect(unauthenticated());
 
         assertNull(accountRepository.findByEmail("test@email.com"));
         then(emailService).shouldHaveNoInteractions();
@@ -99,11 +104,11 @@ class AccountControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("account/check-certification-token"))
                 .andExpect(model().attribute("nickname", savedAccount.getNickname()))
-                .andExpect(model().attribute("email", savedAccount.getEmail()));
+                .andExpect(model().attribute("email", savedAccount.getEmail()))
+                .andExpect(authenticated().withUsername("테스트계정"));
 
         assertTrue(savedAccount.isEmailVerified());
         assertNotNull(savedAccount.getJoinedDateTime());
-        // TODO: 자동 로그인 확인
     }
 
     @DisplayName("이메일 인증 처리 - 존재하지 않는 이메일")
@@ -116,7 +121,8 @@ class AccountControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("account/check-certification-token"))
-                .andExpect(model().attribute("error", "not_exist.email"));
+                .andExpect(model().attribute("error", "not_exist.email"))
+                .andExpect(unauthenticated());
     }
 
     @DisplayName("이메일 인증 처리 - 잘못된 토큰")
@@ -138,7 +144,8 @@ class AccountControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("account/check-certification-token"))
-                .andExpect(model().attribute("error", "invalid.token"));
+                .andExpect(model().attribute("error", "invalid.token"))
+                .andExpect(unauthenticated());
 
         // 유효기간이 지난 토큰 보냄
         savedAccount.setCertificationTokenGeneratedLocalDateTime(LocalDateTime.now().minusMinutes(11));
@@ -151,7 +158,8 @@ class AccountControllerTest {
                     .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("account/check-certification-token"))
-                .andExpect(model().attribute("error", "invalid.token"));
+                .andExpect(model().attribute("error", "invalid.token"))
+                .andExpect(unauthenticated());
     }
 
 }

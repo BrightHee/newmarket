@@ -65,6 +65,9 @@
                         <input th:field="*{passwordAgain}" class="form-control" name="password" type="password"
                                placeholder="다시 한 번 비밀번호를 입력하세요." minlength="8" maxlength="30" required />
                     </div>
+                    <small class="form-text text-muted">
+                        똑같은 비밀번호를 입력해주세요.
+                    </small>
                     <small class="invalid-feedback">다시 한 번 비밀번호를 입력하세요.</small>
                     <small th:if="${#fields.hasErrors('passwordAgain')}" th:errors="*{passwordAgain}" class="form-text text-danger">잘못된 비밀번호</small>
                 </div>
