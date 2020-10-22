@@ -66,7 +66,7 @@ public class AccountService implements UserDetailsService {
 
     public void login(Account account) {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-                new UserExtended(account),
+                new UserAccount(account),
                 account.getPassword(),
                 List.of(new SimpleGrantedAuthority("ROLE_USER"))
         );
@@ -88,6 +88,28 @@ public class AccountService implements UserDetailsService {
         if (account == null) {
             throw new UsernameNotFoundException(username);
         }
-        return new UserExtended(account);
+        return new UserAccount(account);
+    }
+
+    public void changePassword(Account account) {
+        account.getNewPassword();
+        sendNewPassword(account);
+        account.setPassword(passwordEncoder.encode(account.getPassword()));
+        accountRepository.save(account);
+    }
+
+    private void sendNewPassword(Account account) {
+        Context context = new Context();
+        context.setVariable("nickname", account.getNickname());
+        context.setVariable("message", "뉴마켓의 새로운 비밀번호입니다. 새로운 비밀번호로 로그인한 후에 반드시 비밀번호 변경을 하시기 바랍니다.");
+        context.setVariable("password", account.getPassword());
+        String message = templateEngine.process("mail/simple-link-mail", context);
+
+        EmailMessage emailMessage = EmailMessage.builder()
+                .to(account.getEmail())
+                .subject("뉴마켓 새 비밀번호 확인")
+                .message(message)
+                .build();
+        emailService.sendEmail(emailMessage);
     }
 }

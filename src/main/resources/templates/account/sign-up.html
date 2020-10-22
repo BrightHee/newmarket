@@ -8,7 +8,7 @@
 
 <div class="container my-3">
     <div class="card bg-light py-5">
-        <article class="card-body mx-auto">
+        <article class="card-body col-sm-6 mx-auto">
             <h4 class="card-title mb-4 mt-1 text-center">계정 생성</h4>
             <hr>
             <form class="needs-validation" th:object="${signUpForm}"
@@ -20,12 +20,12 @@
                         </div>
                         <input th:field="*{nickname}" class="form-control" name="nickname" type="text"
                                placeholder="닉네임을 입력하세요." minlength="2" max="20" required />
+                        <small class="invalid-feedback">닉네임을 입력하세요.</small>
                     </div>
+                    <small th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}" class="form-text text-danger">잘못된 닉네임</small>
                     <small class="form-text text-muted">
                         공백없이 글자 및 숫자로 2자이상 20자이내로 입력하세요. 추후 닉네임 변경이 가능합니다.
                     </small>
-                    <small class="invalid-feedback">닉네임을 입력하세요.</small>
-                    <small th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}" class="form-text text-danger">잘못된 닉네임</small>
                 </div>
                 <div class="form-group mt-4">
                     <div class="input-group">
@@ -34,13 +34,13 @@
                         </div>
                         <input th:field="*{email}" class="form-control" name="email" type="email"
                                placeholder="이메일을 입력하세요." required />
+                        <small class="invalid-feedback">이메일을 입력하세요.</small>
                     </div>
+                    <small th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="form-text text-danger">잘못된 이메일</small>
                     <small class="form-text text-muted">
                         이메일 인증을 받으면 서비스를 이용하실 수 있습니다. <br />
                         (절대로 사용자의 이메일을 타인에게 공개하지 않습니다)
                     </small>
-                    <small class="invalid-feedback">이메일을 입력하세요.</small>
-                    <small th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="form-text text-danger">잘못된 이메일</small>
                 </div>
                 <div class="form-group mt-4">
                     <div class="input-group">
@@ -49,13 +49,13 @@
                         </div>
                         <input th:field="*{password}" class="form-control" name="password" type="password"
                                placeholder="비밀번호를 입력하세요." minlength="8" maxlength="30" required />
+                        <small class="invalid-feedback">비밀번호를 입력하세요.</small>
                     </div>
+                    <small th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="form-text text-danger">잘못된 비밀번호</small>
                     <small class="form-text text-muted">
                         영문자 + 숫자 + 특수기호를 조합하여 8자 이상 30자 이내로 입력하세요. <br />
                         (되도록 복잡한 비밀번호를 조합하는 것이 좋습니다)
                     </small>
-                    <small class="invalid-feedback">비밀번호를 입력하세요.</small>
-                    <small th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="form-text text-danger">잘못된 비밀번호</small>
                 </div>
                 <div class="form-group mt-4">
                     <div class="input-group">
@@ -64,12 +64,12 @@
                         </div>
                         <input th:field="*{passwordAgain}" class="form-control" name="password" type="password"
                                placeholder="다시 한 번 비밀번호를 입력하세요." minlength="8" maxlength="30" required />
+                        <small class="invalid-feedback">같은 비밀번호를 입력하세요.</small>
                     </div>
+                    <small th:if="${#fields.hasErrors('passwordAgain')}" th:errors="*{passwordAgain}" class="form-text text-danger">잘못된 비밀번호</small>
                     <small class="form-text text-muted">
                         똑같은 비밀번호를 입력해주세요.
                     </small>
-                    <small class="invalid-feedback">다시 한 번 비밀번호를 입력하세요.</small>
-                    <small th:if="${#fields.hasErrors('passwordAgain')}" th:errors="*{passwordAgain}" class="form-text text-danger">잘못된 비밀번호</small>
                 </div>
                 <div class="form-group mt-4 mb-0">
                     <button type="submit" class="btn btn-primary btn-block"> 회원가입 </button>

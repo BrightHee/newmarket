@@ -1,5 +1,6 @@
 package com.newmarket.account;
 
+import com.newmarket.account.annotation.AuthenticatedAccount;
 import com.newmarket.account.form.SignUpForm;
 import com.newmarket.account.validator.SignUpFormValidator;
 import lombok.RequiredArgsConstructor;
@@ -43,20 +44,44 @@ public class AccountController {
     }
 
     @GetMapping("/check-certification-token")
-    public String checkCertificationToken(String token, String email, Model model) {
-        Account account = accountRepository.findByEmail(email);
-        if (account == null) {
+    public String checkCertificationToken(@AuthenticatedAccount Account account, String token, String email, Model model) {
+        if (account != null) {
+            model.addAttribute("account", account);
+        }
+        Account byEmail = accountRepository.findByEmail(email);
+        if (byEmail == null) {
             model.addAttribute("error", "not_exist.email");
             return "account/check-certification-token";
         }
-        if (!account.isValidToken(token)) {
+        if (!byEmail.isValidToken(token)) {
             model.addAttribute("error", "invalid.token");
             return "account/check-certification-token";
         }
-        accountService.finishSignUp(account);
-        model.addAttribute("nickname", account.getNickname());
-        model.addAttribute("email", account.getEmail());
+        accountService.finishSignUp(byEmail);
+        model.addAttribute("nickname", byEmail.getNickname());
+        model.addAttribute("email", byEmail.getEmail());
         return "account/check-certification-token";
+    }
+
+    @GetMapping("/find-password")
+    public String findPasswordForm() {
+        return "account/find-password";
+    }
+
+    @PostMapping("/find-password")
+    public String findPassword(String email, Model model) {
+        // TODO: primitive type의 request parameter validation 하기
+        Account account = accountRepository.findByEmail(email);
+        if (account == null) {
+            model.addAttribute("error", "가입하지 않은 이메일입니다.");
+            return "account/find-password";
+        }
+        if (!account.isEmailVerified()) {
+            model.addAttribute("error", "인증받지 않은 이메일은 비밀번호를 변경하실 수 없습니다.");
+            return "account/find-password";
+        }
+        accountService.changePassword(account);
+        return "redirect:/login";
     }
 
 }

@@ -87,7 +87,7 @@
 
         window.addEventListener('load', function () {
             var forms = document.getElementsByClassName('needs-validation');
-            Array.prototype.filter.call(forms, function (form) {
+            var validation = Array.prototype.filter.call(forms, function (form) {
                 form.addEventListener('submit', function (event) {
                     if (form.checkValidity() === false) { // 유효하지 않으면 not submit
                         event.preventDefault();

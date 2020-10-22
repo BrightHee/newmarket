@@ -10,16 +10,19 @@
 
 <main class="container">
     <div class="main-text">
-        <p> 회원님의 닉네임이 <span th:text="${nickname}"></span>이(가) 아닐 경우 이메일 내 링크를 클릭하지 마세요!</p>
+        <p th:if="${link}"> 회원님의 닉네임이 <span th:text="${nickname}"></span>이(가) 아닐 경우 이메일 내 링크를 클릭하지 마세요!</p>
         <h2> 안녕하세요! <span th:text="${nickname}"></span>님 </h2>
         <p>
             <span th:text="${message}"></span>
         </p>
-        중요: 메일은 10분간 유효합니다. 10분 내로 절차를 진행해 주시기 바랍니다.
-        <div>
-            <a th:href="${link}"> <button th:text="${linkMessage}"></button> </a>
+        <h3 th:if="${password}"><span th:text="${password}"></span></h3>
+        <div th:if="${link}">
+            중요: 메일은 10분간 유효합니다. 10분 내로 절차를 진행해 주시기 바랍니다.
+            <div>
+                <a th:href="${link}"> <button th:text="${linkMessage}"></button> </a>
+            </div>
+            <small>링크가 동작하지 않는다면 <span th:text="${link}"></span>로 접속해주세요.</small>
         </div>
-        <small>링크가 동작하지 않는다면 <span th:text="${link}"></span>로 접속해주세요.</small>
     </div>
 </main>
 

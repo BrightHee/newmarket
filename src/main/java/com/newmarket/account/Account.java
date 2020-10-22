@@ -70,4 +70,8 @@ public class Account {
         this.emailVerified = true;
         this.joinedDateTime = LocalDateTime.now();
     }
+
+    public void getNewPassword() {
+        this.password = UUID.randomUUID().toString().replace("-", "");
+    }
 }
