@@ -9,6 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
@@ -32,6 +33,7 @@ class AccountControllerTest {
     @Autowired private MockMvc mockMvc;
     @Autowired private AccountService accountService;
     @Autowired private AccountRepository accountRepository;
+    @Autowired private PasswordEncoder passwordEncoder;
     @MockBean private EmailService emailService;
 
     @DisplayName("회원 가입 화면 보이는지 확인")
@@ -160,6 +162,77 @@ class AccountControllerTest {
                 .andExpect(view().name("account/check-certification-token"))
                 .andExpect(model().attribute("error", "invalid.token"))
                 .andExpect(unauthenticated());
+    }
+
+    @DisplayName("비밀번호 찾기 화면 보이는지 확인")
+    @Test
+    public void findPasswordForm() throws Exception {
+        mockMvc.perform(get("/find-password"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("account/find-password"))
+                .andExpect(unauthenticated());
+    }
+
+    @DisplayName("비밀번호 찾기 처리 - 성공")
+    @Test
+    public void findPassword() throws Exception {
+        Account account = Account.builder()
+                .nickname("테스트계정")
+                .email("test@email.com")
+                .password(passwordEncoder.encode("abcd1234!"))
+                .emailVerified(true)
+                .build();
+        Account savedAccount = accountRepository.save(account);
+        String oldPassword = savedAccount.getPassword();
+
+        mockMvc.perform(post("/find-password")
+                    .param("email", savedAccount.getEmail())
+                    .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login"))
+                .andExpect(unauthenticated());
+
+        assertNotEquals(oldPassword, savedAccount.getPassword());
+        then(emailService).should(times(1)).sendEmail(any(EmailMessage.class));  // 이메일 보내는지 확인
+    }
+
+    @DisplayName("비밀번호 찾기 처리 - 가입하지 않은 이메일, 인증받지 않은 이메일")
+    @Test
+    public void findPassword_() throws Exception {
+        // 가입하지 않은 이메일
+        mockMvc.perform(post("/find-password")
+                    .param("email", "no@email.com")
+                    .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("account/find-password"))
+                .andExpect(model().attributeExists("error"))
+                .andExpect(unauthenticated());
+
+        then(emailService).shouldHaveNoInteractions();
+
+        Account account = Account.builder()
+                .nickname("테스트계정")
+                .email("test@email.com")
+                .password(passwordEncoder.encode("abcd1234!"))
+                .build();
+        Account savedAccount = accountRepository.save(account);
+        String oldPassword = savedAccount.getPassword();
+
+        // 인증받지 않은 이메일
+        mockMvc.perform(post("/find-password")
+                    .param("email", savedAccount.getEmail())
+                    .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("account/find-password"))
+                .andExpect(model().attributeExists("error"))
+                .andExpect(unauthenticated());
+
+        assertEquals(oldPassword, savedAccount.getPassword());
+        then(emailService).shouldHaveNoInteractions();
     }
 
 }

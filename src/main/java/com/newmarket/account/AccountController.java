@@ -70,7 +70,6 @@ public class AccountController {
 
     @PostMapping("/find-password")
     public String findPassword(String email, Model model) {
-        // TODO: primitive type의 request parameter validation 하기
         Account account = accountRepository.findByEmail(email);
         if (account == null) {
             model.addAttribute("error", "가입하지 않은 이메일입니다.");
