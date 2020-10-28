@@ -4,12 +4,13 @@
 
 <body>
 
-<nav th:replace="fragments.html :: nav"></nav>
+<nav th:replace="fragments.html :: main-nav"></nav>
 
 <div class="container my-3">
-    <div class="card bg-light py-5">
-        <article class="card-body col-sm-6 mx-auto">
-            <h4 class="card-title text-center mb-4 mt-1">로그인</h4>
+    <div th:replace="fragments.html :: success-message"></div>
+    <div class="bg-light border-dark py-5">
+        <div class="col-sm-6 mx-auto p-4">
+            <h4 class="text-center mb-4 mt-1">로그인</h4>
             <hr>
             <form class="needs-validation" th:action="@{/login}" method="post" novalidate>
                 <div class="form-group mt-4">
@@ -40,7 +41,7 @@
                 <p class="text-center mt-2 mb-0">계정이 없다면 <a th:href="@{/sign-up}">회원가입</a> 을 해주세요.</p>
                 <p class="text-center">비밀번호를 잊어버리셨다면 <a th:href="@{/find-password}">여기</a> 를 클릭해주세요.</p>
             </form>
-        </article>
+        </div>
     </div>
     <div th:if="${param.error}" class="alert alert-danger text-center" role="alert">
         <p>이메일(닉네임) 또는 비밀번호가 정확하지 않습니다.</p>

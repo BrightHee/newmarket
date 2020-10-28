@@ -60,7 +60,7 @@
                         <a class="dropdown-item" href="#">구매 정보보기</a>
                         <a class="dropdown-item" href="#">판매 정보보기</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">내 정보 변경하기</a>
+                        <a class="dropdown-item" href="/settings/profile">내 정보 변경하기</a>
                         <form th:action="@{/logout}" method="post">
                             <button type="submit" class="dropdown-item btn btn-link">로그아웃</button>
                         </form>
@@ -70,6 +70,26 @@
         </div>
     </div>
 </nav>
+
+<ul th:fragment="settings-menu(currentMenu)" class="list-group list-group-horizontal-sm">
+    <a class="list-group-item list-group-item-action font-weight-bold font-italic" th:href="@{/settings/profile}"
+       th:classappend="${currentMenu == 'profile'}? active">프로필</a>
+    <a class="list-group-item list-group-item-action font-weight-bold font-italic" th:href="@{/settings/profile}"
+       th:classappend="${currentMenu == 'password'}? active">비밀번호</a>
+    <a class="list-group-item list-group-item-action font-weight-bold font-italic" th:href="@{/settings/profile}"
+       th:classappend="${currentMenu == 'emailCertification'}? active">이메일 인증</a>
+    <a class="list-group-item list-group-item-action font-weight-bold font-italic" th:href="@{/settings/profile}"
+       th:classappend="${currentMenu == 'notification'}? active">알림 설정</a>
+    <a class="list-group-item list-group-item-action font-weight-bold font-italic" th:href="@{/settings/profile}"
+       th:classappend="${currentMenu == 'signOut'}? active">계정 탈퇴</a>
+</ul>
+
+<div th:fragment="success-message" th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+    <strong>처리 완료!</strong> <span th:text="${successMessage}">메시지</span>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
 
 <footer th:fragment="main-footer" class="py-4 bg-dark text-white-50">
     <div class="container">

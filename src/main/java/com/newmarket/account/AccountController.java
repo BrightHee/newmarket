@@ -11,6 +11,7 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 
@@ -69,7 +70,7 @@ public class AccountController {
     }
 
     @PostMapping("/find-password")
-    public String findPassword(String email, Model model) {
+    public String findPassword(String email, Model model, RedirectAttributes attributes) {
         Account account = accountRepository.findByEmail(email);
         if (account == null) {
             model.addAttribute("error", "가입하지 않은 이메일입니다.");
@@ -80,6 +81,7 @@ public class AccountController {
             return "account/find-password";
         }
         accountService.changePassword(account);
+        attributes.addFlashAttribute("successMessage", "비밀번호를 변경했습니다. 이메일에서 확인하세요.");
         return "redirect:/login";
     }
 

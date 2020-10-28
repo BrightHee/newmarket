@@ -1,5 +1,6 @@
 package com.newmarket.account;
 
+import com.newmarket.account.form.ProfileForm;
 import com.newmarket.account.form.SignUpForm;
 import com.newmarket.config.AppProperties;
 import com.newmarket.mail.EmailMessage;
@@ -109,4 +110,12 @@ public class AccountService implements UserDetailsService {
                 .build();
         emailService.sendEmail(emailMessage);
     }
+
+    public void updateProfile(Account account, ProfileForm profileForm) {
+        account.setNickname(profileForm.getNickname());
+        account.setGreetings(profileForm.getGreetings());
+        account.setProfileImage(profileForm.getProfileImage());
+        accountRepository.save(account);
+    }
+
 }

@@ -38,12 +38,6 @@ public class Account {
     @Lob
     private String profileImage;
 
-    // 관심 있는 물품이나 설정한 지역의 물품이 등록되면 알림으로 받을 것인지 결정
-    @Builder.Default
-    private boolean productRegisteredByWeb = true;
-
-    private boolean productRegisteredByEmail;
-
     // 판매자가 구매 신청을 받으면 알림으로 받을 것인지 결정
     @Builder.Default
     private boolean purchaseRegisteredByWeb = true;

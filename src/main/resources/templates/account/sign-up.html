@@ -4,15 +4,14 @@
 
 <body>
 
-<nav th:replace="fragments.html :: nav"></nav>
+<nav th:replace="fragments.html :: main-nav"></nav>
 
 <div class="container my-3">
-    <div class="card bg-light py-5">
-        <article class="card-body col-sm-6 mx-auto">
-            <h4 class="card-title mb-4 mt-1 text-center">계정 생성</h4>
+    <div class="bg-light border-dark py-5">
+        <div class="col-sm-6 mx-auto p-4">
+            <h4 class="mb-4 mt-1 text-center">계정 생성</h4>
             <hr>
-            <form class="needs-validation" th:object="${signUpForm}"
-                  th:action="@{/sign-up}" method="post" novalidate>
+            <form class="needs-validation" th:object="${signUpForm}" th:action="@{/sign-up}" method="post" novalidate>
                 <div class="form-group mt-4">
                     <div class="input-group">
                         <div class="input-group-prepend">
@@ -20,7 +19,7 @@
                         </div>
                         <input th:field="*{nickname}" class="form-control" name="nickname" type="text"
                                placeholder="닉네임을 입력하세요." minlength="2" max="20" required />
-                        <small class="invalid-feedback">닉네임을 입력하세요.</small>
+                        <small class="invalid-feedback">닉네임을 알맞게 입력하세요.</small>
                     </div>
                     <small th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}" class="form-text text-danger">잘못된 닉네임</small>
                     <small class="form-text text-muted">
@@ -34,7 +33,7 @@
                         </div>
                         <input th:field="*{email}" class="form-control" name="email" type="email"
                                placeholder="이메일을 입력하세요." required />
-                        <small class="invalid-feedback">이메일을 입력하세요.</small>
+                        <small class="invalid-feedback">이메일을 알맞게 입력하세요.</small>
                     </div>
                     <small th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="form-text text-danger">잘못된 이메일</small>
                     <small class="form-text text-muted">
@@ -49,7 +48,7 @@
                         </div>
                         <input th:field="*{password}" class="form-control" name="password" type="password"
                                placeholder="비밀번호를 입력하세요." minlength="8" maxlength="30" required />
-                        <small class="invalid-feedback">비밀번호를 입력하세요.</small>
+                        <small class="invalid-feedback">비밀번호를 알맞게 입력하세요.</small>
                     </div>
                     <small th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="form-text text-danger">잘못된 비밀번호</small>
                     <small class="form-text text-muted">
@@ -76,7 +75,7 @@
                 </div>
                 <p class="text-center mt-2">계정이 있으신가요? <a th:href="@{/login}">로그인</a> </p>
             </form>
-        </article>
+        </div>
     </div>
 </div>
 
