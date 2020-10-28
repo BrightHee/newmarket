@@ -200,7 +200,7 @@ class AccountControllerTest {
 
     @DisplayName("비밀번호 찾기 처리 - 가입하지 않은 이메일, 인증받지 않은 이메일")
     @Test
-    public void findPassword_() throws Exception {
+    public void findPassword_fail() throws Exception {
         // 가입하지 않은 이메일
         mockMvc.perform(post("/find-password")
                     .param("email", "no@email.com")
