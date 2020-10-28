@@ -73,11 +73,11 @@ public class AccountController {
     public String findPassword(String email, Model model, RedirectAttributes attributes) {
         Account account = accountRepository.findByEmail(email);
         if (account == null) {
-            model.addAttribute("error", "가입하지 않은 이메일입니다.");
+            model.addAttribute("errorMessage", "가입하지 않은 이메일입니다.");
             return "account/find-password";
         }
         if (!account.isEmailVerified()) {
-            model.addAttribute("error", "인증받지 않은 이메일은 비밀번호를 변경하실 수 없습니다.");
+            model.addAttribute("errorMessage", "인증받지 않은 이메일은 비밀번호를 변경하실 수 없습니다.");
             return "account/find-password";
         }
         accountService.changePassword(account);

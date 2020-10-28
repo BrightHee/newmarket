@@ -208,7 +208,7 @@ class AccountControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("account/find-password"))
-                .andExpect(model().attributeExists("error"))
+                .andExpect(model().attributeExists("errorMessage"))
                 .andExpect(unauthenticated());
 
         then(emailService).shouldHaveNoInteractions();
@@ -228,7 +228,7 @@ class AccountControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("account/find-password"))
-                .andExpect(model().attributeExists("error"))
+                .andExpect(model().attributeExists("errorMessage"))
                 .andExpect(unauthenticated());
 
         assertEquals(oldPassword, savedAccount.getPassword());

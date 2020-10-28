@@ -91,6 +91,14 @@
     </button>
 </div>
 
+
+<div th:fragment="error-message" th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <strong>처리 실패!</strong> <span th:text="${errorMessage}">메시지</span>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+
 <footer th:fragment="main-footer" class="py-4 bg-dark text-white-50">
     <div class="container">
         <img src="/images/logo_white.png" alt="로고 이미지" width="120" />
