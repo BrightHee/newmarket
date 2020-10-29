@@ -23,6 +23,8 @@ public class Account {
     @Column(nullable = false)
     private String password;
 
+    private boolean passwordVerified;  // 새 비밀번호 설정 전에 비밀번호 확인용
+
     private boolean emailVerified;
 
     private String certificationToken;

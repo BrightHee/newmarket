@@ -118,4 +118,9 @@ public class AccountService implements UserDetailsService {
         accountRepository.save(account);
     }
 
+    public void updatePassword(Account account, String password) {
+        account.setPassword(passwordEncoder.encode(password));
+        accountRepository.save(account);
+    }
+
 }
