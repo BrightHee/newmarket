@@ -59,7 +59,7 @@ class AccountControllerTest {
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/"))
-                .andExpect(authenticated().withUsername("테스트계정"));
+                .andExpect(authenticated().withUsername("test@email.com"));
 
         Account account = accountRepository.findByEmail("test@email.com");
         assertNotNull(account);
@@ -107,7 +107,7 @@ class AccountControllerTest {
                 .andExpect(view().name("account/check-certification-token"))
                 .andExpect(model().attribute("nickname", savedAccount.getNickname()))
                 .andExpect(model().attribute("email", savedAccount.getEmail()))
-                .andExpect(authenticated().withUsername("테스트계정"));
+                .andExpect(authenticated().withUsername("test@email.com"));
 
         assertTrue(savedAccount.isEmailVerified());
         assertNotNull(savedAccount.getJoinedDateTime());

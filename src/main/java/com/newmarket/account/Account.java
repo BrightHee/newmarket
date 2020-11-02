@@ -59,7 +59,7 @@ public class Account {
 
     public boolean isValidToken(String token) {
         return this.certificationToken.equals(token)
-                && this.certificationTokenGeneratedLocalDateTime.plusMinutes(10).isAfter(LocalDateTime.now());
+                && this.certificationTokenGeneratedLocalDateTime.plusSeconds(30).isAfter(LocalDateTime.now());
     }
 
     public void finishSignUp() {

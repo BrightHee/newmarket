@@ -76,8 +76,8 @@
        th:classappend="${currentMenu == 'profile'}? active">프로필</a>
     <a class="list-group-item list-group-item-action font-weight-bold font-italic" th:href="@{/settings/password-confirm}"
        th:classappend="${currentMenu == 'password'}? active">비밀번호</a>
-    <a class="list-group-item list-group-item-action font-weight-bold font-italic" th:href="@{/settings/profile}"
-       th:classappend="${currentMenu == 'emailCertification'}? active">이메일 인증</a>
+    <a class="list-group-item list-group-item-action font-weight-bold font-italic" th:href="@{/settings/resend-email-certification}"
+       th:classappend="${currentMenu == 'email-certification'}? active">이메일 인증</a>
     <a class="list-group-item list-group-item-action font-weight-bold font-italic" th:href="@{/settings/profile}"
        th:classappend="${currentMenu == 'notification'}? active">알림 설정</a>
     <a class="list-group-item list-group-item-action font-weight-bold font-italic" th:href="@{/settings/profile}"

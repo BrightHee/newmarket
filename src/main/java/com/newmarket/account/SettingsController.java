@@ -109,4 +109,20 @@ public class SettingsController {
         return "redirect:/settings/password-confirm";
     }
 
+    @GetMapping("/resend-email-certification")
+    public String resendEmailCertificationForm() {
+        return "account/settings/resend-email-certification";
+    }
+
+    @PostMapping("/resend-email-certification")
+    public String resendEmailCertification(@AuthenticatedAccount Account account, Model model, RedirectAttributes attributes) {
+        if (account.isValidToken(account.getCertificationToken())) {
+            model.addAttribute("errorMessage", "아직 이메일 인증이 유효하므로 보내진 메일로 이메일 인증을 시도하세요.");
+            return "account/settings/resend-email-certification";
+        }
+        accountService.resendEmailCertification(account);
+        attributes.addFlashAttribute("successMessage", "이메일 인증 메일을 보냈습니다.");
+        return "redirect:/settings/resend-email-certification";
+    }
+
 }

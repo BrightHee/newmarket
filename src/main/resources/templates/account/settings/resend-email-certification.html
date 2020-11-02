@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:include="fragments.html :: head" th:remove="tag"></div>
+    <link rel="stylesheet" href="/css/settings.css">
+</head>
+
+<body>
+
+<nav th:replace="fragments.html :: main-nav"></nav>
+
+<div class="container my-3">
+    <div th:replace="fragments.html :: error-message"></div>
+    <div th:replace="fragments.html :: success-message"></div>
+    <div th:replace="fragments.html :: settings-menu(currentMenu = 'email-certification')"></div>
+    <div class="bg-light border-dark p-5">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-4 mt-1 text-center settings-title">이메일 인증하기</h4>
+                <hr>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-sm-4 p-4">
+                <div th:if="${account.emailVerified}" class="alert alert-success" role="alert">
+                    <h4 class="alert-heading">이메일 인증됨!</h4>
+                    <p>해당 계정은 이미 이메일 인증이 완료된 상태입니다.</p>
+                    <hr>
+                    <p class="mb-0">마음껏 서비스를 이용해 주세요.</p>
+                </div>
+                <div th:if="${!account.emailVerified}" class="alert alert-success" role="alert">
+                    <h4 class="alert-heading">이메일 인증이 필요함!</h4>
+                    <p>해당 계정은 이메일 인증이 완료되지 않은 상태입니다.</p>
+                    <hr>
+                    <p class="mb-0">이메일 인증을 완료해야 서비스를 이용하실 수 있습니다.</p>
+                </div>
+                <form th:if="${!account.emailVerified}" th:action="@{/settings/resend-email-certification}" method="post">
+                    <div class="form-group">
+                        <button th:classappend="${account.isValidToken(account.getCertificationToken())}? disabled"
+                                class="btn btn-primary btn-block" type="submit" > 인증코드 재전송 </button>
+                        <small class="form-text text-muted">
+                            인증은 10분간 유효합니다. 10분을 초과하였다면 인증코드를 재전송하여 인증을 하십시오.
+                        </small>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="fragments.html :: main-footer"></footer>
+
+</body>
+</html>

@@ -33,15 +33,19 @@ public class AccountService implements UserDetailsService {
 
     public Account signUp(SignUpForm signUpForm) {
         Account account = saveNewAccount(signUpForm);
-        account.createCertificationToken();
-        sendSignUpEmailCertificationToken(account);
+        sendSignUpEmailCertification(account);
         return account;
     }
 
-    private void sendSignUpEmailCertificationToken(Account account) {
+    private void sendSignUpEmailCertification(Account account) {
+        account.createCertificationToken();
+        sendEmailCertification(account, "뉴마켓의 신규회원 가입에 감사드립니다. 뉴마켓의 서비스를 이용하시려면 아래의 링크를 클릭해서 이메일 인증을 진행해 주십시오.");
+    }
+
+    private void sendEmailCertification(Account account, String content) {
         Context context = new Context();
         context.setVariable("nickname", account.getNickname());
-        context.setVariable("message", "뉴마켓의 신규회원 가입에 감사드립니다. 뉴마켓의 서비스를 이용하시려면 아래의 링크를 클릭해서 이메일 인증을 진행해 주십시오.");
+        context.setVariable("message", content);
         context.setVariable("linkMessage", "이메일 인증하기");
         context.setVariable("link", appProperties.getHost()
                 + "/check-certification-token?token=" + account.getCertificationToken()
@@ -50,7 +54,7 @@ public class AccountService implements UserDetailsService {
 
         EmailMessage emailMessage = EmailMessage.builder()
                 .to(account.getEmail())
-                .subject("뉴마켓 가입 이메일 인증받기")
+                .subject("뉴마켓 이메일 인증받기")
                 .message(message)
                 .build();
         emailService.sendEmail(emailMessage);
@@ -121,6 +125,12 @@ public class AccountService implements UserDetailsService {
     public void updatePassword(Account account, String password) {
         account.setPassword(passwordEncoder.encode(password));
         accountRepository.save(account);
+    }
+
+    public void resendEmailCertification(Account account) {
+        account.createCertificationToken();
+        accountRepository.save(account);
+        sendEmailCertification(account, "뉴마켓의 인증 메일입니다. 뉴마켓의 서비스를 이용하시려면 아래의 링크를 클릭해서 이메일 인증을 진행해 주십시오.");
     }
 
 }

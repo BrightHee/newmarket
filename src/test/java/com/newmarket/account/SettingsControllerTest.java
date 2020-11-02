@@ -3,13 +3,21 @@ package com.newmarket.account;
 import com.newmarket.MockMvcTest;
 import com.newmarket.account.form.PasswordForm;
 import com.newmarket.account.form.ProfileForm;
+import com.newmarket.mail.EmailMessage;
+import com.newmarket.mail.EmailService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.times;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -23,6 +31,7 @@ class SettingsControllerTest {
     @Autowired MockMvc mockMvc;
     @Autowired AccountRepository accountRepository;
     @Autowired PasswordEncoder passwordEncoder;
+    @MockBean EmailService emailService;
 
     private final String TEST_EMAIL = "test@email.com";
     private final String TEST_PASSWORD = "abcd1234!";
@@ -229,6 +238,53 @@ class SettingsControllerTest {
 
         assertTrue(account.isPasswordVerified());
         assertTrue(passwordEncoder.matches(TEST_PASSWORD, account.getPassword()));  // 바뀌지 않음
+    }
+
+    @DisplayName("이메일 인증 재전송 화면 보이는지 확인")
+    @WithAccount(TEST_EMAIL)
+    @Test
+    public void resendEmailCertificationForm() throws Exception {
+        mockMvc.perform(get("/settings/resend-email-certification"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("account/settings/resend-email-certification"))
+                .andExpect(authenticated().withUsername(TEST_EMAIL));
+    }
+
+    @DisplayName("이메일 인증 재전송 - 성공")
+    @WithAccount(TEST_EMAIL)
+    @Test
+    public void resendEmailCertification() throws Exception {
+        Account account = accountRepository.findByEmail(TEST_EMAIL);
+        String oldToken = account.getCertificationToken();
+
+        account.setCertificationTokenGeneratedLocalDateTime(LocalDateTime.now().minusMinutes(11));
+        accountRepository.save(account);
+        accountRepository.flush();
+
+        mockMvc.perform(post("/settings/resend-email-certification")
+                    .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/settings/resend-email-certification"))
+                .andExpect(flash().attributeExists("successMessage"))
+                .andExpect(authenticated().withUsername(TEST_EMAIL));
+
+        then(emailService).should(times(2)).sendEmail(any(EmailMessage.class));  // 회원 가입 때 1번 + 재전송 때 1번
+        assertNotEquals(oldToken, account.getCertificationToken());
+    }
+
+    @DisplayName("이메일 인증 재전송 - 실패(쿨타임)")
+    @WithAccount(TEST_EMAIL)
+    @Test
+    public void resendEmailCertification_fail() throws Exception {
+        mockMvc.perform(post("/settings/resend-email-certification")
+                    .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("account/settings/resend-email-certification"))
+                .andExpect(model().attributeExists("errorMessage"))
+                .andExpect(authenticated().withUsername(TEST_EMAIL));
     }
 
 }
