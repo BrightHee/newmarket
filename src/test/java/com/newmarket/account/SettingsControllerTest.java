@@ -287,4 +287,39 @@ class SettingsControllerTest {
                 .andExpect(authenticated().withUsername(TEST_EMAIL));
     }
 
+    @DisplayName("알림 설정 화면 보이는지 확인")
+    @WithAccount(TEST_EMAIL)
+    @Test
+    public void notificationForm() throws Exception {
+        mockMvc.perform(get("/settings/notification"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("account/settings/notification"))
+                .andExpect(model().attributeExists("notificationForm"))
+                .andExpect(authenticated().withUsername(TEST_EMAIL));
+    }
+
+    @DisplayName("알림 설정 처리")
+    @WithAccount(TEST_EMAIL)
+    @Test
+    public void updateNotificationSettings() throws Exception {
+        mockMvc.perform(post("/settings/notification")
+                    .param("purchaseRegisteredByWeb", "false")
+                    .param("purchaseRegisteredByEmail", "true")
+                    .param("purchaseResultByWeb", "true")
+                    .param("purchaseResultByEmail", "true")
+                    .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/settings/notification"))
+                .andExpect(flash().attributeExists("successMessage"))
+                .andExpect(authenticated().withUsername(TEST_EMAIL));
+
+        Account account = accountRepository.findByEmail(TEST_EMAIL);
+        assertEquals(account.isPurchaseRegisteredByWeb(), false);
+        assertEquals(account.isPurchaseRegisteredByEmail(), true);
+        assertEquals(account.isPurchaseResultByWeb(), true);
+        assertEquals(account.isPurchaseResultByEmail(), true);
+    }
+
 }

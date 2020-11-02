@@ -56,7 +56,7 @@
                     </a>
                     <div class="dropdown-menu" aria-labelledby="userDropdown">
                         <!-- TODO: th:href -->
-                        <a class="dropdown-item" href="#"><span th:text="${account?.nickname}"></span></a>
+                        <a class="dropdown-item" th:href="@{/settings/profile}"><span th:text="${account?.nickname}"></span></a>
                         <a class="dropdown-item" href="#">구매 정보보기</a>
                         <a class="dropdown-item" href="#">판매 정보보기</a>
                         <div class="dropdown-divider"></div>
@@ -78,7 +78,7 @@
        th:classappend="${currentMenu == 'password'}? active">비밀번호</a>
     <a class="list-group-item list-group-item-action font-weight-bold font-italic" th:href="@{/settings/resend-email-certification}"
        th:classappend="${currentMenu == 'email-certification'}? active">이메일 인증</a>
-    <a class="list-group-item list-group-item-action font-weight-bold font-italic" th:href="@{/settings/profile}"
+    <a class="list-group-item list-group-item-action font-weight-bold font-italic" th:href="@{/settings/notification}"
        th:classappend="${currentMenu == 'notification'}? active">알림 설정</a>
     <a class="list-group-item list-group-item-action font-weight-bold font-italic" th:href="@{/settings/profile}"
        th:classappend="${currentMenu == 'signOut'}? active">계정 탈퇴</a>

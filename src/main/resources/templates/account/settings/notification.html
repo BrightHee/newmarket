@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:include="fragments.html :: head" th:remove="tag"></div>
+    <link rel="stylesheet" href="/css/settings.css">
+</head>
+
+<body>
+
+<nav th:replace="fragments.html :: main-nav"></nav>
+
+<div class="container my-3">
+    <div th:replace="fragments.html :: error-message"></div>
+    <div th:replace="fragments.html :: success-message"></div>
+    <div th:replace="fragments.html :: settings-menu(currentMenu = 'notification')"></div>
+    <div class="bg-light border-dark p-5">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-4 mt-1 text-center settings-title">알림 설정</h4>
+                <hr>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-sm-6 p-4">
+                <form th:object="${notificationForm}" th:action="@{/settings/notification}" method="post" novalidate>
+                    <div class="alert alert-info" role="alert">
+                        <h4 class="alert-heading">구매 신청 수신 알림</h4>
+                        <p>판매자 관련 알림 설정입니다. 구매 신청을 알림으로 받고 싶으시다면 선택해주세요.</p>
+                        <hr>
+                        <p class="mb-0">웹과 이메일 둘 다 수신할 수 있습니다.</p>
+                    </div>
+                    <div class="form-group mt-4">
+                        <div class="custom-control custom-control-inline custom-radio">
+                            <input th:field="*{purchaseRegisteredByWeb}" type="checkbox" class="custom-control-input" id="purchaseRegisteredByWeb">
+                            <label class="custom-control-label" for="purchaseRegisteredByWeb">웹으로 수신하기</label>
+                        </div>
+                        <div class="custom-control custom-control-inline custom-radio">
+                            <input th:field="*{purchaseRegisteredByEmail}" type="checkbox" class="custom-control-input" id="purchaseRegisteredByEmail">
+                            <label class="custom-control-label" for="purchaseRegisteredByEmail">이메일로 수신하기</label>
+                        </div>
+                    </div>
+                    <div class="alert alert-info" role="alert">
+                        <h4 class="alert-heading">구매 신청 결과 수신 알림</h4>
+                        <p>구매자 관련 알림 설정입니다. 구매 신청 결과를 알림으로 받고 싶으시다면 선택해주세요.</p>
+                        <hr>
+                        <p class="mb-0">웹과 이메일 둘 다 수신할 수 있습니다.</p>
+                    </div>
+                    <div class="form-group mt-4">
+                        <div class="custom-control custom-control-inline custom-radio">
+                            <input th:field="*{purchaseResultByWeb}" type="checkbox" class="custom-control-input" id="purchaseResultByWeb">
+                            <label class="custom-control-label" for="purchaseResultByWeb">웹으로 수신하기</label>
+                        </div>
+                        <div class="custom-control custom-control-inline custom-radio">
+                            <input th:field="*{purchaseResultByEmail}" type="checkbox" class="custom-control-input" id="purchaseResultByEmail">
+                            <label class="custom-control-label" for="purchaseResultByEmail">이메일로 수신하기</label>
+                        </div>
+                    </div>
+                    <div class="form-group mt-4 mb-0">
+                        <button type="submit" class="btn btn-primary btn-block"> 변경하기 </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="fragments.html :: main-footer"></footer>
+
+</body>
+</html>

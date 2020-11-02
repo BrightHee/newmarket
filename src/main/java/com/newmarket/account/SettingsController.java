@@ -1,6 +1,7 @@
 package com.newmarket.account;
 
 import com.newmarket.account.annotation.AuthenticatedAccount;
+import com.newmarket.account.form.NotificationForm;
 import com.newmarket.account.form.PasswordForm;
 import com.newmarket.account.form.ProfileForm;
 import com.newmarket.account.validator.PasswordFormValidator;
@@ -123,6 +124,30 @@ public class SettingsController {
         accountService.resendEmailCertification(account);
         attributes.addFlashAttribute("successMessage", "이메일 인증 메일을 보냈습니다.");
         return "redirect:/settings/resend-email-certification";
+    }
+
+    @GetMapping("/notification")
+    public String notificationForm(@AuthenticatedAccount Account account, Model model) {
+        NotificationForm notificationForm = NotificationForm.builder()
+                .purchaseRegisteredByWeb(account.isPurchaseRegisteredByWeb())
+                .purchaseRegisteredByEmail(account.isPurchaseRegisteredByEmail())
+                .purchaseResultByWeb(account.isPurchaseResultByWeb())
+                .purchaseResultByEmail(account.isPurchaseResultByEmail())
+                .build();
+        model.addAttribute("notificationForm", notificationForm);
+        return "account/settings/notification";
+    }
+
+    @PostMapping("/notification")
+    public String updateNotificationSettings(@Valid NotificationForm notificationForm, Errors errors,
+                                             @AuthenticatedAccount Account account, Model model, RedirectAttributes attributes) {
+        if (errors.hasErrors()) {
+            model.addAttribute("errorMessage", "알림 설정에 실패했습니다.");
+            return "account/settings/notification";
+        }
+        accountService.updateNotificationSettings(account, notificationForm);
+        attributes.addFlashAttribute("successMessage", "알림 설정을 업데이트 했습니다.");
+        return "redirect:/settings/notification";
     }
 
 }

@@ -1,5 +1,6 @@
 package com.newmarket.account;
 
+import com.newmarket.account.form.NotificationForm;
 import com.newmarket.account.form.ProfileForm;
 import com.newmarket.account.form.SignUpForm;
 import com.newmarket.config.AppProperties;
@@ -133,4 +134,11 @@ public class AccountService implements UserDetailsService {
         sendEmailCertification(account, "뉴마켓의 인증 메일입니다. 뉴마켓의 서비스를 이용하시려면 아래의 링크를 클릭해서 이메일 인증을 진행해 주십시오.");
     }
 
+    public void updateNotificationSettings(Account account, NotificationForm notificationForm) {
+        account.setPurchaseRegisteredByWeb(notificationForm.isPurchaseRegisteredByWeb());
+        account.setPurchaseRegisteredByEmail(notificationForm.isPurchaseRegisteredByEmail());
+        account.setPurchaseResultByWeb(notificationForm.isPurchaseResultByWeb());
+        account.setPurchaseResultByEmail(notificationForm.isPurchaseResultByEmail());
+        accountRepository.save(account);
+    }
 }
