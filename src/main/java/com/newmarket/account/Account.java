@@ -35,8 +35,6 @@ public class Account {
 
     private String greetings;
 
-    private String location;
-
     @Lob
     private String profileImage;
 
