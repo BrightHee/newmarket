@@ -3,6 +3,7 @@ package com.newmarket.account;
 import com.newmarket.MockMvcTest;
 import com.newmarket.account.form.PasswordForm;
 import com.newmarket.account.form.ProfileForm;
+import com.newmarket.account.form.SignUpForm;
 import com.newmarket.mail.EmailMessage;
 import com.newmarket.mail.EmailService;
 import org.junit.jupiter.api.DisplayName;
@@ -30,6 +31,7 @@ class SettingsControllerTest {
 
     @Autowired MockMvc mockMvc;
     @Autowired AccountRepository accountRepository;
+    @Autowired AccountService accountService;
     @Autowired PasswordEncoder passwordEncoder;
     @MockBean EmailService emailService;
 
@@ -53,7 +55,7 @@ class SettingsControllerTest {
     @Test
     public void updateProfile() throws Exception {
         ProfileForm profileForm = ProfileForm.builder()
-                .nickname("바뀐닉네임")
+                .nickname("테스트계정")  // 원래 닉네임으로 해도 프로필 수정됨
                 .greetings("프로필을 수정했습니다~")
                 .build();
 
@@ -80,8 +82,15 @@ class SettingsControllerTest {
     @Test
     public void updateProfile_fail() throws Exception {
         // 이미 있는 닉네임으로 바꾸는 경우
+        SignUpForm signUpForm = new SignUpForm();
+        signUpForm.setNickname("테스트계정2");
+        signUpForm.setEmail("test2@email.com");
+        signUpForm.setPassword("abcd1234!");
+        signUpForm.setPasswordAgain("abcd1234!");
+        accountService.signUp(signUpForm);
+
         ProfileForm profileForm = ProfileForm.builder()
-                .nickname("테스트계정")
+                .nickname("테스트계정2")
                 .greetings("프로필을 수정했습니다~")
                 .build();
 

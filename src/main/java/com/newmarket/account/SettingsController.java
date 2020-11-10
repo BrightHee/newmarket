@@ -5,7 +5,6 @@ import com.newmarket.account.form.NotificationForm;
 import com.newmarket.account.form.PasswordForm;
 import com.newmarket.account.form.ProfileForm;
 import com.newmarket.account.validator.PasswordFormValidator;
-import com.newmarket.account.validator.ProfileFormValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -24,14 +23,8 @@ public class SettingsController {
 
     private final AccountService accountService;
     private final AccountRepository accountRepository;
-    private final ProfileFormValidator profileFormValidator;
     private final PasswordEncoder passwordEncoder;
     private final PasswordFormValidator passwordFormValidator;
-
-    @InitBinder("profileForm")
-    public void validateProfileForm(WebDataBinder webDataBinder) {
-        webDataBinder.addValidators(profileFormValidator);
-    }
 
     @InitBinder("passwordForm")
     public void validatePasswordForm(WebDataBinder webDataBinder) {
@@ -59,6 +52,11 @@ public class SettingsController {
     public String updateProfile(@Valid ProfileForm profileForm, Errors errors,
                                 @AuthenticatedAccount Account account, RedirectAttributes attributes) {
         if (errors.hasErrors()) {
+            return "account/settings/profile";
+        }
+        if (accountRepository.existsByNickname(profileForm.getNickname())
+                && !account.getNickname().equals(profileForm.getNickname())) {
+            errors.rejectValue("nickname", "exist.nickname", new Object[]{profileForm.getNickname()}, "이미 존재하는 닉네임입니다.");
             return "account/settings/profile";
         }
         accountService.updateProfile(account, profileForm);
