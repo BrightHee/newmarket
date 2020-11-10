@@ -1,0 +1,31 @@
+package com.newmarket.garment.validator;
+
+import com.newmarket.area.Area;
+import com.newmarket.area.AreaRepository;
+import com.newmarket.garment.GarmentRepository;
+import com.newmarket.garment.form.GarmentForm;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import org.springframework.validation.Errors;
+import org.springframework.validation.Validator;
+
+@Component
+@RequiredArgsConstructor
+public class GarmentFormValidator implements Validator {
+
+    private final AreaRepository areaRepository;
+
+    @Override
+    public boolean supports(Class<?> clazz) {
+        return clazz.isAssignableFrom(GarmentForm.class);
+    }
+
+    @Override
+    public void validate(Object o, Errors errors) {
+        GarmentForm garmentForm = (GarmentForm) o;
+        if (!areaRepository.existsByCityProvinceAndCityCountryDistrictAndTownTownshipNeighborhood(garmentForm.getCityProvince(),
+                garmentForm.getCityCountryDistrict(), garmentForm.getTownTownshipNeighborhood())) {
+            errors.rejectValue("cityProvince", "no_area", new Object[]{garmentForm.getCityProvince()}, "없는 지역입니다.");
+        }
+    }
+}

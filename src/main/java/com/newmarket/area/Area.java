@@ -2,9 +2,10 @@ package com.newmarket.area;
 
 import lombok.*;
 
-import javax.persistence.*;
-import java.time.LocalDateTime;
-import java.util.UUID;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 
 @Entity
 @Getter @Setter @EqualsAndHashCode(of = "id")
@@ -15,12 +16,12 @@ public class Area {
     private Long id;
 
     @Column(nullable = false)
-    private String cityOrProvince;
+    private String cityProvince;
 
     @Column(nullable = false)
-    private String cityOrCountryOrDistrict;
+    private String cityCountryDistrict;
 
     @Column(nullable = false)
-    private String townOrTownshipOrNeighborhood;
+    private String townTownshipNeighborhood;
 
 }

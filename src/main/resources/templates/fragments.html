@@ -54,11 +54,12 @@
                         <img th:if="${!#strings.isEmpty(account?.profileImage)}" th:src="${account.profileImage}"
                              class="rounded border" width="24" height="24" />
                     </a>
-                    <div class="dropdown-menu" aria-labelledby="userDropdown">
+                    <div class="dropdown-menu dropdown-menu-sm-right" aria-labelledby="userDropdown">
                         <!-- TODO: th:href -->
                         <a class="dropdown-item" th:href="@{/settings/profile}"><span th:text="${account?.nickname}"></span></a>
                         <a class="dropdown-item" href="#">구매 정보보기</a>
                         <a class="dropdown-item" href="#">판매 정보보기</a>
+                        <a class="dropdown-item" th:href="@{/new-garment}">옷 판매하기</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="/settings/profile">내 정보 변경하기</a>
                         <form th:action="@{/logout}" method="post">
@@ -82,6 +83,13 @@
        th:classappend="${currentMenu == 'notification'}? active">알림 설정</a>
     <a class="list-group-item list-group-item-action font-weight-bold font-italic" th:href="@{/settings/profile}"
        th:classappend="${currentMenu == 'signOut'}? active">계정 탈퇴</a>
+</ul>
+
+<ul th:fragment="garment-menu(currentMenu)" class="list-group list-group-horizontal-sm">
+    <a class="list-group-item list-group-item-action font-weight-bold font-italic" th:href="@{/new-garment}"
+       th:classappend="${currentMenu == 'registration'}? active">판매할 옷 등록하기</a>
+    <a class="list-group-item list-group-item-action font-weight-bold font-italic" th:href="@{/}"
+       th:classappend="${currentMenu == 'management'}? active">비밀번호</a>
 </ul>
 
 <div th:fragment="success-message" th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">

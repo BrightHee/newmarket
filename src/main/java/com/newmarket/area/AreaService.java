@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 public class AreaService {
 
     private final AreaRepository areaRepository;
+    private final CityProvince cityProvince;
 
     @PostConstruct
     public void initAreaData() throws IOException {
@@ -28,12 +29,14 @@ public class AreaService {
                     .map(line -> {
                         String[] split = line.split(",");
                         return Area.builder()
-                                .cityOrProvince(split[0])
-                                .cityOrCountryOrDistrict(split[1])
-                                .townOrTownshipOrNeighborhood(split[2])
+                                .cityProvince(split[0])
+                                .cityCountryDistrict(split[1])
+                                .townTownshipNeighborhood(split[2])
                                 .build();
                     }).collect(Collectors.toList());
             areaRepository.saveAll(areaList);
+            List<String> list = areaRepository.findDistinctCityProvince();
+            cityProvince.setCityProvinceList(list);
         }
     }
 

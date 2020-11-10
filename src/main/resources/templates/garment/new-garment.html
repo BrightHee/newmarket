@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:include="fragments.html :: head" th:remove="tag"></div>
+    <link rel="stylesheet" href="/node_modules/summernote/dist/summernote-bs4.min.css" />
+    <style>
+        .container {
+            max-width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav th:replace="fragments.html :: main-nav"></nav>
+
+<div class="container my-3">
+    <div th:replace="fragments.html :: error-message"></div>
+    <div th:replace="fragments.html :: success-message"></div>
+    <div th:replace="fragments.html :: garment-menu(currentMenu = 'registration')"></div>
+    <div class="bg-light border-dark p-5">
+        <div class="row justify-content-center">
+            <div class="col-sm-6">
+                <div class="card text-center">
+                    <div class="card-header">
+                        옷 이미지
+                    </div>
+                    <div id="current-garment-image" class="mt-3">
+                        <img th:src="${#strings.isEmpty(garmentForm.image)} ? '/images/no_image.png' : garmentForm.image"
+                             class="border" width="250" height="250" alt="&times;" />
+                    </div>
+                    <div id="new-garment-image" class="mt-3"></div>
+                    <div class="card-body">
+                        <div class="custom-file">
+                            <input id="garment-image-file" class="custom-file-input" type="file" />
+                            <label for="garment-image-file" class="custom-file-label">옷 이미지 변경</label>
+                        </div>
+                        <div id="new-garment-image-control" class="mt-3">
+                            <button class="btn btn-outline-primary btn-block" id="cut-button">자르기</button>
+                            <button class="btn btn-outline-success btn-block" id="confirm-button">확인</button>
+                            <button class="btn btn-outline-warning btn-block" id="reset-button">취소</button>
+                        </div>
+                        <div id="cropped-new-garment-image" class="mt-3"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-8 p-4">
+                <form class="needs-validation" th:object="${garmentForm}" th:action="@{/new-garment}" method="post" novalidate>
+                    <div class="row form-group mt-4">
+                        <div class="col-sm-10">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"> 글 제목 </span>
+                                </div>
+                                <input th:field="*{title}" class="form-control" name="title" type="text"
+                                       placeholder="글 제목을 입력하세요." minlength="1" max="80" required />
+                                <small class="invalid-feedback">제목을 알맞게 입력하세요.</small>
+                            </div>
+                            <small th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="form-text text-danger">잘못된 제목</small>
+                            <small class="form-text text-muted">
+                                제목은 필수입니다. 80자 이내로 간단하게 입력해주세요.
+                            </small>
+                        </div>
+                    </div>
+                    <div class="row form-group mt-4">
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"> 종류 </span>
+                                </div>
+                                <select th:field="*{type}" class="browser-default custom-select" name="type" required>
+                                    <option value="" selected hidden>선택하세요</option>
+                                    <option th:each="g : ${garmentType}" th:value="${g}" th:text="${g}"></option>
+                                </select>
+                                <small class="invalid-feedback">종류를 선택하세요.</small>
+                            </div>
+                            <small th:if="${#fields.hasErrors('type')}" th:errors="*{type}" class="form-text text-danger">잘못된 타입</small>
+                            <small class="form-text text-muted">
+                                옷에 해당하는 종류를 선택해주세요. 종류별로 옷을 볼 수 있습니다.
+                            </small>
+                        </div>
+                    </div>
+                    <div class="row form-group mt-4">
+                        <div class="col-sm-6">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"> 희망 가격 </span>
+                                </div>
+                                <input th:field="*{price}" class="form-control" name="price" type="number"
+                                       placeholder="희망하는 가격을 입력하세요." min="0" required />
+                                <div class="input-group-append">
+                                    <span class="input-group-text"> 원 </span>
+                                </div>
+                                <small class="invalid-feedback">가격을 알맞게 입력하세요.</small>
+                            </div>
+                            <small th:if="${#fields.hasErrors('price')}" th:errors="*{price}" class="form-text text-danger">잘못된 가격</small>
+                            <small class="form-text text-muted">
+                                팔기 원하는 가격을 입력해주세요.
+                            </small>
+                        </div>
+                    </div>
+                    <div class="row form-group mt-4">
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"> 시/도 </span>
+                                </div>
+                                <select th:field="*{cityProvince}" name="cityProvince" id="cityProvince"
+                                        class="browser-default custom-select" required>
+                                    <option value="" selected hidden>선택하세요</option>
+                                    <option th:each="cp : ${cityProvinceList}" th:value="${cp}" th:text="${cp}"></option>
+                                </select>
+                                <small class="invalid-feedback">시/도를 선택하세요.</small>
+                            </div>
+                            <small th:if="${#fields.hasErrors('cityProvince')}" th:errors="*{cityProvince}" class="form-text text-danger">잘못된 지역</small>
+                            <small class="form-text text-muted">
+                                거래를 할 지역을 선택하세요.
+                            </small>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"> 시/군/구 </span>
+                                </div>
+                                <select th:field="*{cityCountryDistrict}" name="cityCountryDistrict" id="cityCountryDistrict"
+                                        class="browser-default custom-select" required>
+                                    <option value="" selected hidden>선택하세요</option>
+                                </select>
+                                <small class="invalid-feedback">시/군/구를 선택하세요.</small>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"> 읍/면/동 </span>
+                                </div>
+                                <select th:field="*{townTownshipNeighborhood}" name="townTownshipNeighborhood" id="townTownshipNeighborhood"
+                                        class="browser-default custom-select" required>
+                                    <option value="" selected hidden>선택하세요</option>
+                                </select>
+                                <small class="invalid-feedback">시/도를 선택하세요.</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row form-group mt-4">
+                        <div class="col-12">
+                            <textarea th:field="*{content}" class="form-control editor" name="content" type="textarea"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input th:field="*{image}" id="garmentImage" class="form-control" type="hidden" />
+                    </div>
+                    <div class="row justify-content-between form-group mt-4 mb-0">
+                        <div class="col-sm-4">
+                            <button type="submit" class="btn btn-primary btn-block"> 등록하기 </button>
+                        </div>
+                        <div class="col-sm-2">
+                            <button type="reset" class="btn btn-danger btn-block"> 취소 </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="fragments.html :: main-footer"></footer>
+
+<script th:replace="fragments.html :: form-validation"></script>
+
+<link rel="stylesheet" href="/node_modules/cropper/dist/cropper.min.css" />
+<script src="/node_modules/cropper/dist/cropper.min.js"></script>
+<script src="/node_modules/jquery-cropper/dist/jquery-cropper.min.js"></script>
+
+<script type="application/javascript">
+    $(function () {
+        let cropper = '';
+        let $cutBtn = $("#cut-button");
+        let $confirmBtn = $("#confirm-button");
+        let $resetBtn = $("#reset-button");
+        let $garmentImageFile = $("#garment-image-file");
+        let $currentGarmentImage = $("#current-garment-image");
+        let $croppedNewGarmentImage = $("#cropped-new-garment-image");
+        let $newGarmentImage = $("#new-garment-image");
+        let $garmentImage = $("#garmentImage");
+
+        $newGarmentImage.hide();
+        $cutBtn.hide();
+        $confirmBtn.hide();
+        $resetBtn.hide();
+
+        $garmentImageFile.change(function (e) {
+            if (e.target.files.length === 1) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    if (e.target.result) {  // dataURL
+                        if (!e.target.result.startsWith("data:image")) {
+                            alert("이미지 파일을 선택하세요.");
+                            return;
+                        }
+                        let img = document.createElement("img");
+                        img.id = 'new-garment';
+                        img.src = e.target.result;
+                        img.setAttribute('max-width', '100%');
+
+                        $newGarmentImage.html(img);
+                        $newGarmentImage.show();
+                        $currentGarmentImage.hide();
+
+                        let $newImage = $(img);
+                        $newImage.cropper({ aspectRatio: 1 });
+                        cropper = $newImage.data('cropper');
+
+                        $cutBtn.show();
+                        $confirmBtn.hide();
+                        $resetBtn.show();
+                    }
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+
+        $cutBtn.click(function () {
+            let dataUrl = cropper.getCroppedCanvas().toDataURL();
+            if (dataUrl.length > 5 * 1024 * 1024) {
+                alert("이미지 파일이 너무 큽니다. 5MB보다 작은 파일을 사용하세요. 현재 이미지 크기는 " + dataUrl.length + " 입니다.");
+                return;
+            }
+
+            let newImage = document.createElement("img");
+            newImage.id = 'cropped-new-garment';
+            newImage.src = dataUrl;
+            newImage.width = 125;
+
+            $croppedNewGarmentImage.html(newImage);
+            $croppedNewGarmentImage.show();
+            $confirmBtn.show();
+            $confirmBtn.click(function () {
+                $newGarmentImage.html(newImage);
+                $cutBtn.hide();
+                $confirmBtn.hide();
+                $garmentImage.val(dataUrl);
+            });
+        });
+
+        $resetBtn.click(function () {
+            $cutBtn.hide();
+            $confirmBtn.hide();
+            $resetBtn.hide();
+            $currentGarmentImage.show();
+            $croppedNewGarmentImage.hide();
+            $newGarmentImage.hide();
+            $garmentImageFile.val('');
+            $garmentImage.val('');
+        });
+    });
+</script>
+
+<script type="application/javascript" th:inline="javascript">  // ajax request csrf token
+    $(function () {
+        const csrfToken = /*[[${_csrf.token}]]*/ null;
+        const csrfHeader = /*[[${_csrf.headerName}]]*/ null;
+        $(document).ajaxSend(function (e, xhr, options) {
+            xhr.setRequestHeader(csrfHeader, csrfToken);
+        });
+    });
+</script>
+
+<script type="application/javascript">
+    $(function () {
+        let $cityProvince = $("#cityProvince");
+        let $cityCountryDistrict = $('#cityCountryDistrict');
+        let $townTownshipNeighborhood = $('#townTownshipNeighborhood');
+
+        $cityProvince.change(function() {
+            $.ajax({
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                method: "POST",
+                url: "/new-garment/cityCountryDistrict",
+                data: JSON.stringify({ 'cityProvince': $cityProvince.val() })
+            }).done(function (data, status) {
+                if (data !== null) {
+                    $cityCountryDistrict.html('');
+                    $townTownshipNeighborhood.html('');
+                    $('<option>').attr({
+                        selected: true,
+                        hidden: true,
+                        value: ''
+                    }).text('선택하세요').appendTo($cityCountryDistrict);
+                    $('<option>').attr({
+                        selected: true,
+                        hidden: true,
+                        value: ''
+                    }).text('선택하세요').appendTo($townTownshipNeighborhood);
+                }
+                $.each(data, function (idx, el) {
+                    $cityCountryDistrict.append(new Option(el, el));
+                });
+            });
+        });
+
+        $cityCountryDistrict.change(function () {
+            $.ajax({
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                method: "POST",
+                url: "/new-garment/townTownshipNeighborhood",
+                data: JSON.stringify({
+                    'cityProvince': $cityProvince.val(),
+                    'cityCountryDistrict': $cityCountryDistrict.val()
+                })
+            }).done(function (data, status) {
+                if (data !== null) {
+                    $townTownshipNeighborhood.html('');
+                    $('<option>').attr({
+                        selected: true,
+                        hidden: true,
+                        value: ''
+                    }).text('선택하세요').appendTo($townTownshipNeighborhood);
+                }
+                $.each(data, function (idx, el) {
+                    $townTownshipNeighborhood.append(new Option(el, el));
+                });
+            });
+        });
+    });
+</script>
+
+<script src="/node_modules/summernote/dist/summernote-bs4.js"></script>
+<script type="application/javascript">
+    $(function () {
+        $('.editor').summernote({
+            fontName: ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New', 'Noto Sans KR', 'Merriweather'],
+            placeholder: '추가 설명이 필요한 부분을 이곳에 기재해 주세요.',
+            tabSize: 2,
+            height: 300
+        });
+    });
+</script>
+
+</body>
+</html>
