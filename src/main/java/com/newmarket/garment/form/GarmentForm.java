@@ -7,6 +7,7 @@ import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.Column;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
@@ -16,8 +17,8 @@ public class GarmentForm {
 
     @NotBlank
     @Pattern(
-            regexp = "^[ㄱ-ㅎ가-힣\\p{Graph}]{1,80}$",
-            message = "공백없이 80자 이내로 입력하세요.")
+            regexp = "^[ㄱ-ㅎ가-힣\\p{Graph}\\s]{1,50}$",
+            message = "50자 이내로 입력하세요.")
     private String title;
 
     private String content;
@@ -28,7 +29,8 @@ public class GarmentForm {
     @GarmentEnumType(enumClass = GarmentType.class)
     private String type;
 
-    @Min(0)
+    @Min(value = 1000, message = "범위를 벗어나는 값입니다.")
+    @Max(value = Integer.MAX_VALUE, message = "범위를 벗어나는 값입니다.")
     private Integer price;
 
     @NotBlank

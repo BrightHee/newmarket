@@ -23,6 +23,9 @@ public class GarmentFormValidator implements Validator {
     @Override
     public void validate(Object o, Errors errors) {
         GarmentForm garmentForm = (GarmentForm) o;
+        if ((garmentForm.getPrice() % 1000) != 0) {
+            errors.rejectValue("price", "wrong_price", new Object[]{garmentForm.getPrice()}, "1000원 단위여야 합니다.");
+        }
         if (!areaRepository.existsByCityProvinceAndCityCountryDistrictAndTownTownshipNeighborhood(garmentForm.getCityProvince(),
                 garmentForm.getCityCountryDistrict(), garmentForm.getTownTownshipNeighborhood())) {
             errors.rejectValue("cityProvince", "no_area", new Object[]{garmentForm.getCityProvince()}, "없는 지역입니다.");

@@ -2,6 +2,9 @@ package com.newmarket.garment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.newmarket.MockMvcTest;
+import com.newmarket.account.Account;
+import com.newmarket.account.AccountRepository;
+import com.newmarket.account.AccountService;
 import com.newmarket.account.WithAccount;
 import com.newmarket.area.AreaRepository;
 import com.newmarket.garment.form.CityCountryDistrictForm;
@@ -30,13 +33,20 @@ class GarmentControllerTest {
     @Autowired private GarmentRepository garmentRepository;
     @Autowired private AreaRepository areaRepository;
     @Autowired private ObjectMapper objectMapper;
+    @Autowired private AccountRepository accountRepository;
 
     private final String TEST_EMAIL = "test@email.com";
+
+    private void verifyEmail() {
+        Account account = accountRepository.findByEmail(TEST_EMAIL);
+        account.finishSignUp();
+    }
 
     @DisplayName("옷 판매 등록 화면 보이는지 확인")
     @WithAccount(TEST_EMAIL)
     @Test
     public void garmentForm() throws Exception {
+        verifyEmail();
         mockMvc.perform(get("/new-garment"))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -97,6 +107,7 @@ class GarmentControllerTest {
     @WithAccount(TEST_EMAIL)
     @Test
     public void newGarment() throws Exception {
+        verifyEmail();
         assertTrue(garmentRepository.findAll().isEmpty());
 
         mockMvc.perform(post("/new-garment")
@@ -111,7 +122,7 @@ class GarmentControllerTest {
                     .with(csrf()))
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/"))
+                .andExpect(redirectedUrl("/garments"))
                 .andExpect(flash().attributeExists("successMessage"))
                 .andExpect(authenticated().withUsername(TEST_EMAIL));
         assertFalse(garmentRepository.findAll().isEmpty());
@@ -121,6 +132,7 @@ class GarmentControllerTest {
     @WithAccount(TEST_EMAIL)
     @Test
     public void newGarment_fail() throws Exception {
+        verifyEmail();
         // 없는 타입인 경우
         mockMvc.perform(post("/new-garment")
                     .param("title", "테스트판매")
@@ -149,6 +161,24 @@ class GarmentControllerTest {
                     .param("cityProvince", "서울특별시")
                     .param("cityCountryDistrict", "아무구")
                     .param("townTownshipNeighborhood", "아무동")
+                    .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("garment/new-garment"))
+                .andExpect(model().attributeExists("account", "errorMessage"))
+                .andExpect(authenticated().withUsername(TEST_EMAIL));
+        assertTrue(garmentRepository.findAll().isEmpty());
+
+        // 가격이 1000원 단위가 아닌 경우
+        mockMvc.perform(post("/new-garment")
+                    .param("title", "테스트판매")
+                    .param("content", "테스트입니다.")
+                    .param("image", "")
+                    .param("type", "VEST")
+                    .param("price", "12345")
+                    .param("cityProvince", "서울특별시")
+                    .param("cityCountryDistrict", "광진구")
+                    .param("townTownshipNeighborhood", "화양동")
                     .with(csrf()))
                 .andDo(print())
                 .andExpect(status().isOk())

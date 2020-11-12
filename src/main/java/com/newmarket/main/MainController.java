@@ -12,7 +12,7 @@ public class MainController {
     @GetMapping("/")
     public String home(@AuthenticatedAccount Account account, Model model) {
         if (account != null) {
-            model.addAttribute("account", account);
+            model.addAttribute(account);
         }
         return "index";
     }

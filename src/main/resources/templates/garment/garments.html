@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:include="fragments.html :: head" th:remove="tag"></div>
+    <link rel="stylesheet" href="/node_modules/summernote/dist/summernote-bs4.min.css" />
+    <style>
+        .container {
+            max-width: 100%;
+        }
+        .closed-card {
+            opacity: .5;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav th:replace="fragments.html :: main-nav"></nav>
+
+<div class="container my-3">
+    <div th:replace="fragments.html :: success-message"></div>
+    <div class="bg-light border-dark p-5">
+        <div class="row">
+            <div th:each="garment: ${currentGarments}" class="col-sm-3 mb-3">
+                <a th:href="@{'/garment/' + ${garment.id}}" class="text-reset text-decoration-none">
+                    <div class="card border-dark shadow-sm h-100" th:classappend="${garment.closed}? 'closed-card'">
+                        <div class="card-header">
+                            <img class="card-img-top" th:if="${#strings.isEmpty(garment.image)}"
+                                 src="/images/no_image.png" width="250" alt="옷 이미지" />
+                            <img class="card-img-top" th:if="${!#strings.isEmpty(garment.image)}"
+                                 th:src="${garment.image}" width="250" alt="옷 이미지" />
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title"><span th:text="${garment.title}"></span></h5>
+                            <div class="text-right card-text">
+                                <div><span th:text="${garment.type}"></span></div>
+                                <div><span id="garment-price" th:text="${garment.price}"></span>원</div>
+                            </div>
+                            <h2 th:if="${garment.closed}" class="text-danger font-weight-bold">판매 완료</h2>
+                        </div>
+                        <div class="card-footer text-right">
+                            <div>
+                                <small class="text-muted">
+                                    <span th:text="${garment.area.cityProvince + ' ' + garment.area.cityCountryDistrict + ' ' + garment.area.townTownshipNeighborhood}"></span>
+                                </small>
+                            </div>
+                            <small class="text-muted date-time"><span th:text="${garment.updatedDateTime}"></span></small>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="fragments.html :: main-footer"></footer>
+
+<script src="/node_modules/moment/min/moment-with-locales.min.js"></script>
+<script type="application/javascript">
+    $(function() {
+        moment.locale('ko');
+        $(".date-time").text(function (idx, dateTime) {
+            return moment(dateTime, "YYYY-MM-DD hh:mm a").format('LLL');
+        });
+    });
+</script>
+
+<script type="application/javascript">
+    $(function () {
+        let value = $('#garment-price').text();
+        $('#garment-price').text(value.replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+    });
+</script>
+
+</body>
+</html>

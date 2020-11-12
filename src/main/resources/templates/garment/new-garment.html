@@ -34,12 +34,12 @@
                                     <span class="input-group-text"> 글 제목 </span>
                                 </div>
                                 <input th:field="*{title}" class="form-control" name="title" type="text"
-                                       placeholder="글 제목을 입력하세요." minlength="1" max="80" required />
+                                       placeholder="글 제목을 입력하세요." minlength="1" max="50" required />
                                 <small class="invalid-feedback">제목을 알맞게 입력하세요.</small>
                             </div>
                             <small th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="form-text text-danger">잘못된 제목</small>
                             <small class="form-text text-muted">
-                                제목은 필수입니다. 80자 이내로 간단하게 입력해주세요.
+                                제목은 필수입니다. 50자 이내로 간단하게 입력해주세요.
                             </small>
                         </div>
                     </div>
@@ -68,7 +68,7 @@
                                     <span class="input-group-text"> 희망 가격 </span>
                                 </div>
                                 <input th:field="*{price}" class="form-control" name="price" type="number"
-                                       placeholder="희망하는 가격을 입력하세요." min="0" required />
+                                       placeholder="희망하는 가격을 입력하세요." min="1000" max="1000000000" step="1000" required />
                                 <div class="input-group-append">
                                     <span class="input-group-text"> 원 </span>
                                 </div>
@@ -76,7 +76,7 @@
                             </div>
                             <small th:if="${#fields.hasErrors('price')}" th:errors="*{price}" class="form-text text-danger">잘못된 가격</small>
                             <small class="form-text text-muted">
-                                팔기 원하는 가격을 입력해주세요.
+                                팔기 원하는 가격을 입력해주세요. 1000원 단위로만 가능합니다.
                             </small>
                         </div>
                     </div>
