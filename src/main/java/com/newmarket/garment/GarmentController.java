@@ -23,6 +23,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -91,14 +92,24 @@ public class GarmentController {
     }
 
     @GetMapping("/garments")
-    public String showGarments(@PageableDefault(size = 20, sort = "updatedDateTime", direction = Sort.Direction.DESC) Pageable pageable, Model model,
-                               @AuthenticatedAccount Account account) {
+    public String showGarments(@PageableDefault(size = 20, sort = "updatedDateTime", direction = Sort.Direction.DESC) Pageable pageable,
+                               Model model, @AuthenticatedAccount Account account) {
         if (account != null) {
             model.addAttribute(account);
         }
         Page<Garment> currentGarments = garmentRepository.findCurrentGarments(pageable);
         model.addAttribute("currentGarments", currentGarments);
         return "garment/garments";
+    }
+
+    @GetMapping("/garment/{id}")
+    public String showDetails(@PathVariable Long id, Model model, @AuthenticatedAccount Account account) {
+        if (account != null) {
+            model.addAttribute(account);
+        }
+        Optional<Garment> garment = garmentRepository.findById(id);
+        model.addAttribute("garment", garment.orElseThrow());
+        return "garment/details";
     }
 
 }

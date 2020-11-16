@@ -2,7 +2,6 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <div th:include="fragments.html :: head" th:remove="tag"></div>
-    <link rel="stylesheet" href="/node_modules/summernote/dist/summernote-bs4.min.css" />
     <style>
         .container {
             max-width: 100%;
@@ -55,22 +54,8 @@
 
 <footer th:replace="fragments.html :: main-footer"></footer>
 
-<script src="/node_modules/moment/min/moment-with-locales.min.js"></script>
-<script type="application/javascript">
-    $(function() {
-        moment.locale('ko');
-        $(".date-time").text(function (idx, dateTime) {
-            return moment(dateTime, "YYYY-MM-DD hh:mm a").format('LLL');
-        });
-    });
-</script>
-
-<script type="application/javascript">
-    $(function () {
-        let value = $('#garment-price').text();
-        $('#garment-price').text(value.replace(/\B(?=(\d{3})+(?!\d))/g, ","));
-    });
-</script>
+<script th:include="fragments.html :: korea-date-time" th:remove="tag"></script>
+<script th:replace="fragments.html :: price-with-comma"></script>
 
 </body>
 </html>

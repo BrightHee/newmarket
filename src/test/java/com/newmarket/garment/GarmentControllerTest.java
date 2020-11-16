@@ -9,11 +9,15 @@ import com.newmarket.account.WithAccount;
 import com.newmarket.area.AreaRepository;
 import com.newmarket.garment.form.CityCountryDistrictForm;
 import com.newmarket.garment.form.CityProvinceForm;
+import com.newmarket.garment.form.GarmentForm;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.List;
 
@@ -186,6 +190,62 @@ class GarmentControllerTest {
                 .andExpect(model().attributeExists("account", "errorMessage"))
                 .andExpect(authenticated().withUsername(TEST_EMAIL));
         assertTrue(garmentRepository.findAll().isEmpty());
+    }
+
+    @DisplayName("전체 옷(페이징) 화면 보이는지 확인")
+    @WithAccount(TEST_EMAIL)
+    @Test
+    public void showGarments() throws Exception {
+        verifyEmail();
+        createDummyGarment(100);
+        MvcResult result = mockMvc.perform(get("/garments"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("garment/garments"))
+                .andExpect(model().attributeExists("currentGarments")).andReturn();
+
+        Page page = (Page) result.getModelAndView().getModel().get("currentGarments");
+        assertEquals(page.getSize(), 20);
+        assertEquals(page.getTotalElements(), 100);
+        assertEquals(page.getTotalPages(), 5);
+        assertEquals(page.getNumber(), 0);
+
+        for (int i = 0; i < page.getContent().size(); i++) {
+            Garment garment = (Garment) page.getContent().get(i);
+            assertEquals(garment.getTitle(), "제목(" + (100-i) + ")");
+        }
+    }
+
+    private void createDummyGarment(int num) {
+        Account account = accountRepository.findByEmail(TEST_EMAIL);
+        GarmentForm garmentForm = new GarmentForm();
+        for (int i = 0; i < num; i++) {
+            garmentForm.setTitle("제목(" + (i+1) + ")");
+            garmentForm.setType(GarmentType.CARDIGAN.toString());
+            garmentForm.setPrice(20000);
+            garmentForm.setCityProvince("서울특별시");
+            garmentForm.setCityCountryDistrict("광진구");
+            garmentForm.setTownTownshipNeighborhood("화양동");
+            garmentForm.setContent("내용~~!");
+            garmentService.addNewGarment(garmentForm, account);
+        }
+    }
+
+    @DisplayName("상세 옷 화면 보이는지 확인")
+    @WithAccount(TEST_EMAIL)
+    @Test
+    public void showDetails() throws Exception {
+        verifyEmail();
+        createDummyGarment(10);
+        long id = garmentRepository.findByTitle("제목(3)").get(0).getId();
+        MvcResult result = mockMvc.perform(get("/garment/" + id))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("garment/details"))
+                .andExpect(model().attributeExists("garment")).andReturn();
+        Garment garment = (Garment) result.getModelAndView().getModel().get("garment");
+        assertEquals(garment.getTitle(), "제목(3)");
+        assertEquals(garment.getAccount(), accountRepository.findByEmail(TEST_EMAIL));
     }
 
 }
