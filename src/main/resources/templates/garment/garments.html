@@ -49,6 +49,31 @@
                 </a>
             </div>
         </div>
+        <div class="row justify-content-center">
+            <div class="col-sm-8">
+                <nav>
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item" th:classappend="${!currentGarments.hasPrevious()}? disabled">
+                            <a th:href="@{'/garments?sort=' + ${sortProperty} + ',desc&page=' + ${currentGarments.getNumber() - 1}}"
+                               class="page-link" tabindex="-1" aria-disabled="true">
+                                이전
+                            </a>
+                        </li>
+                        <li class="page-item" th:classappend="${i == currentGarments.getNumber()}? active"
+                            th:each="i : ${#numbers.sequence(0, currentGarments.getTotalPages() - 1)}">
+                            <a th:href="@{'/garments?sort=' + ${sortProperty} + ',desc&page=' + ${i}}"
+                               class="page-link" th:text="${i + 1}">1</a>
+                        </li>
+                        <li class="page-item" th:classappend="${!currentGarments.hasNext()}? disabled">
+                            <a th:href="@{'/garments?sort=' + ${sortProperty} + ',desc&page=' + ${currentGarments.getNumber() + 1}}"
+                               class="page-link" tabindex="-1" aria-disabled="true">
+                                다음
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
     </div>
 </div>
 

@@ -98,6 +98,7 @@ public class GarmentController {
             model.addAttribute(account);
         }
         Page<Garment> currentGarments = garmentRepository.findCurrentGarments(pageable);
+        model.addAttribute("sortProperty", "updatedDateTime");
         model.addAttribute("currentGarments", currentGarments);
         return "garment/garments";
     }
