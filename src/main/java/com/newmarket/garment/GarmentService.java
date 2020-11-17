@@ -34,4 +34,7 @@ public class GarmentService {
         garmentRepository.save(newGarment);
     }
 
+    public void deleteGarment(Garment garment) {
+        garmentRepository.delete(garment);
+    }
 }

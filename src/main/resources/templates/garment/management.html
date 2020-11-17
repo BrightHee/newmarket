@@ -48,7 +48,7 @@
                             <td> <span th:text="${garment.updatedDateTime}" class="date-time"></span> </td>
                             <td> <a class="btn btn-outline-primary btn-sm" th:href="@{'/garment/' + ${garment.id} + '/update'}">수정</a> </td>
                             <td>
-                                <form th:action="@{'/garment/' + ${garment.id} + '/delete'}" mehod="post">
+                                <form th:action="@{'/garment/' + ${garment.id} + '/delete'}" method="post">
                                     <button class="btn btn-sm btn-outline-danger" type="submit">삭제</button>
                                 </form>
                             </td>

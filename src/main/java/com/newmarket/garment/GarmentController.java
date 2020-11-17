@@ -121,6 +121,19 @@ public class GarmentController {
         return "garment/management";
     }
 
+    @PostMapping("/garment/{id}/delete")
+    public String deleteGarment(@PathVariable Long id, @AuthenticatedAccount Account account, Model model,
+                                RedirectAttributes attributes) {
+        model.addAttribute(account);
 
+        Garment garment = garmentRepository.findWithAccountById(id);
+        if (!garment.getAccount().getEmail().equals(account.getEmail())) {
+            model.addAttribute("errorMessage", "자신의 글만 삭제할 수 있습니다.");
+            return "garment/management";
+        }
+        garmentService.deleteGarment(garment);
+        attributes.addFlashAttribute("successMessage", "성공적으로 글을 삭제했습니다.");
+        return "redirect:/garments/management";
+    }
 
 }
