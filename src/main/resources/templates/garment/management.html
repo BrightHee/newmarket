@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:include="fragments.html :: head" th:remove="tag"></div>
+    <style>
+        .container {
+            max-width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav th:replace="fragments.html :: main-nav"></nav>
+
+<div class="container my-3">
+    <div th:replace="fragments.html :: error-message"></div>
+    <div th:replace="fragments.html :: success-message"></div>
+    <div th:replace="fragments.html :: garment-menu(currentMenu = 'management')"></div>
+    <div class="bg-light border-dark p-5">
+        <div class="row justify-content-center py-3">
+            <div th:if="${#lists.isEmpty(garments)}" class="col-sm-8">
+                <h5>수정/삭제할 글이 없습니다.</h5>
+            </div>
+            <div th:if="${!#lists.isEmpty(garments)}" class="col-sm-8">
+                <strong>판매종료된 글은 수정/삭제할 수 없습니다.</strong>
+                <table class="table table-borderless table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">제목</th>
+                            <th scope="col">종류</th>
+                            <th scope="col">가격</th>
+                            <th scope="col">지역</th>
+                            <th scope="col">최종 수정 시간</th>
+                            <th scope="col">수정</th>
+                            <th scope="col">삭제</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="garment : ${garments}">
+                            <th scope="row" th:text="${garmentStat.count}"></th>
+                            <td> <a th:href="@{'/garment/' + ${garment.id}}" class="text-decoration-none">
+                                    <span th:text="${garment.title}"></span> </a> </td>
+                            <td> <span th:text="${garment.type}"></span> </td>
+                            <td> <span th:text="${garment.price}" id="garment-price"></span> 원</td>
+                            <td> <span th:text="${garment.area.cityProvince + ' ' + garment.area.cityCountryDistrict + ' ' + garment.area.townTownshipNeighborhood}"></span> </td>
+                            <td> <span th:text="${garment.updatedDateTime}" class="date-time"></span> </td>
+                            <td> <a class="btn btn-outline-primary btn-sm" th:href="@{'/garment/' + ${garment.id} + '/update'}">수정</a> </td>
+                            <td>
+                                <form th:action="@{'/garment/' + ${garment.id} + '/delete'}" mehod="post">
+                                    <button class="btn btn-sm btn-outline-danger" type="submit">삭제</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="fragments.html :: main-footer"></footer>
+
+<script th:include="fragments.html :: korea-date-time" th:remove="tag"></script>
+<script th:replace="fragments.html :: price-with-comma"></script>
+
+</body>
+</html>

@@ -88,8 +88,8 @@
 <ul th:fragment="garment-menu(currentMenu)" class="list-group list-group-horizontal-sm">
     <a class="list-group-item list-group-item-action font-weight-bold font-italic" th:href="@{/new-garment}"
        th:classappend="${currentMenu == 'registration'}? active">판매할 옷 등록하기</a>
-    <a class="list-group-item list-group-item-action font-weight-bold font-italic" th:href="@{/}"
-       th:classappend="${currentMenu == 'management'}? active">비밀번호</a>
+    <a class="list-group-item list-group-item-action font-weight-bold font-italic" th:href="@{/garments/management}"
+       th:classappend="${currentMenu == 'management'}? active">수정/삭제</a>
 </ul>
 
 <div th:fragment="success-message" th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">

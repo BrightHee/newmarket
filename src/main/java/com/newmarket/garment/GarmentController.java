@@ -113,4 +113,14 @@ public class GarmentController {
         return "garment/details";
     }
 
+    @GetMapping("/garments/management")
+    public String manageGarments(@AuthenticatedAccount Account account, Model model) {
+        List<Garment> garments = garmentRepository.findByAccountAndClosed(account, false);
+        model.addAttribute(account);
+        model.addAttribute("garments", garments);
+        return "garment/management";
+    }
+
+
+
 }
