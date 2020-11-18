@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Transactional(readOnly = true)
 public interface GarmentRepository extends JpaRepository<Garment, Long>, GarmentRepositoryExtension {
@@ -15,6 +16,6 @@ public interface GarmentRepository extends JpaRepository<Garment, Long>, Garment
     List<Garment> findByAccountAndClosed(Account account, boolean closed);
 
     @EntityGraph(attributePaths = { "account" })
-    Garment findWithAccountById(Long id);
+    Optional<Garment> findWithAccountById(Long id);
 
 }

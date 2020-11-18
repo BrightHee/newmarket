@@ -122,10 +122,10 @@ public class GarmentController {
     }
 
     @GetMapping("/garment/{id}/update")
-    public String updateGarment(@PathVariable Long id, @AuthenticatedAccount Account account, Model model) {
+    public String updateGarmentForm(@PathVariable Long id, @AuthenticatedAccount Account account, Model model) {
         model.addAttribute(account);
         Garment garment = garmentRepository.findById(id).orElseThrow();
-        if (garment == null || garment.isClosed() || !garment.getAccount().getEmail().equals(account.getEmail())) {
+        if (garment.isClosed() || !garment.getAccount().getEmail().equals(account.getEmail())) {
             model.addAttribute("errorMessage", "잘못된 접근입니다.");
             return "garment/management";
         }
@@ -154,8 +154,8 @@ public class GarmentController {
                                 @AuthenticatedAccount Account account, Model model, RedirectAttributes attributes) {
         model.addAttribute(account);
 
-        Garment garment = garmentRepository.findWithAccountById(id);
-        if (garment == null || garment.isClosed() || !garment.getAccount().getEmail().equals(account.getEmail())) {
+        Garment garment = garmentRepository.findWithAccountById(id).orElseThrow();
+        if (garment.isClosed() || !garment.getAccount().getEmail().equals(account.getEmail())) {
             model.addAttribute("errorMessage", "잘못된 접근입니다.");
             return "garment/management";
         }
@@ -179,8 +179,8 @@ public class GarmentController {
                                 RedirectAttributes attributes) {
         model.addAttribute(account);
 
-        Garment garment = garmentRepository.findWithAccountById(id);
-        if (garment == null || garment.isClosed() || !garment.getAccount().getEmail().equals(account.getEmail())) {
+        Garment garment = garmentRepository.findWithAccountById(id).orElseThrow();
+        if (garment.isClosed() || !garment.getAccount().getEmail().equals(account.getEmail())) {
             model.addAttribute("errorMessage", "잘못된 접근입니다.");
             return "garment/management";
         }
