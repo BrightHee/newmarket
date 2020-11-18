@@ -121,14 +121,67 @@ public class GarmentController {
         return "garment/management";
     }
 
+    @GetMapping("/garment/{id}/update")
+    public String updateGarment(@PathVariable Long id, @AuthenticatedAccount Account account, Model model) {
+        model.addAttribute(account);
+        Garment garment = garmentRepository.findById(id).orElseThrow();
+        if (garment == null || garment.isClosed() || !garment.getAccount().getEmail().equals(account.getEmail())) {
+            model.addAttribute("errorMessage", "잘못된 접근입니다.");
+            return "garment/management";
+        }
+        GarmentForm garmentForm = GarmentForm.builder()
+                .title(garment.getTitle())
+                .content(garment.getContent())
+                .image(garment.getImage())
+                .type(garment.getType().toString())
+                .price(garment.getPrice())
+                .cityProvince(garment.getArea().getCityProvince())
+                .cityCountryDistrict(garment.getArea().getCityCountryDistrict())
+                .townTownshipNeighborhood(garment.getArea().getTownTownshipNeighborhood())
+                .build();
+        model.addAttribute("garmentForm", garmentForm);
+        model.addAttribute("garmentType", Stream.of(GarmentType.values()).map(Enum::name).collect(Collectors.toList()));
+        model.addAttribute("cityProvinceList", cityProvince.getCityProvinceList());
+        model.addAttribute("cityCountryDistrictList",
+                areaRepository.findDistinctCityCountryDistrict(garmentForm.getCityProvince()));
+        model.addAttribute("townTownshipNeighborhoodList",
+                areaRepository.findTownTownshipNeighborhood(garmentForm.getCityProvince(), garmentForm.getCityCountryDistrict()));
+        return "garment/update";
+    }
+
+    @PostMapping("/garment/{id}/update")
+    public String updateGarment(@PathVariable Long id, @Valid GarmentForm garmentForm, Errors errors,
+                                @AuthenticatedAccount Account account, Model model, RedirectAttributes attributes) {
+        model.addAttribute(account);
+
+        Garment garment = garmentRepository.findWithAccountById(id);
+        if (garment == null || garment.isClosed() || !garment.getAccount().getEmail().equals(account.getEmail())) {
+            model.addAttribute("errorMessage", "잘못된 접근입니다.");
+            return "garment/management";
+        }
+        if (errors.hasErrors()) {
+            model.addAttribute("errorMessage", "글 수정에 실패했습니다.");
+            model.addAttribute("garmentType", Stream.of(GarmentType.values()).map(Enum::name).collect(Collectors.toList()));
+            model.addAttribute("cityProvinceList", cityProvince.getCityProvinceList());
+            model.addAttribute("cityCountryDistrictList",
+                    areaRepository.findDistinctCityCountryDistrict(garmentForm.getCityProvince()));
+            model.addAttribute("townTownshipNeighborhoodList",
+                    areaRepository.findTownTownshipNeighborhood(garmentForm.getCityProvince(), garmentForm.getCityCountryDistrict()));
+            return "garment/update";
+        }
+        garmentService.updateGarment(garment, garmentForm);
+        attributes.addFlashAttribute("successMessage", "성공적으로 글을 수정했습니다.");
+        return "redirect:/garments/management";
+    }
+
     @PostMapping("/garment/{id}/delete")
     public String deleteGarment(@PathVariable Long id, @AuthenticatedAccount Account account, Model model,
                                 RedirectAttributes attributes) {
         model.addAttribute(account);
 
         Garment garment = garmentRepository.findWithAccountById(id);
-        if (!garment.getAccount().getEmail().equals(account.getEmail())) {
-            model.addAttribute("errorMessage", "자신의 글만 삭제할 수 있습니다.");
+        if (garment == null || garment.isClosed() || !garment.getAccount().getEmail().equals(account.getEmail())) {
+            model.addAttribute("errorMessage", "잘못된 접근입니다.");
             return "garment/management";
         }
         garmentService.deleteGarment(garment);

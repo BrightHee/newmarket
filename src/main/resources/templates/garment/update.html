@@ -16,10 +16,8 @@
 
 <div class="container my-3">
     <div th:replace="fragments.html :: error-message"></div>
-    <div th:replace="fragments.html :: success-message"></div>
-    <div th:replace="fragments.html :: garment-menu(currentMenu = 'registration')"></div>
     <div class="bg-light border-dark p-5">
-        <div th:include="fragments.html :: garment-form(formUrl = '/new-garment')" th:remove="tag"></div>
+        <div th:include="fragments.html :: garment-form(formUrl = '/garment/' + ${id} + '/update')" th:remove="tag"></div>
     </div>
 </div>
 

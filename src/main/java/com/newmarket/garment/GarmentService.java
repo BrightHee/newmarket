@@ -37,4 +37,18 @@ public class GarmentService {
     public void deleteGarment(Garment garment) {
         garmentRepository.delete(garment);
     }
+
+    public void updateGarment(Garment garment, GarmentForm garmentForm) {
+        Area area = areaRepository.findByCityProvinceAndCityCountryDistrictAndTownTownshipNeighborhood(
+                garmentForm.getCityProvince(), garmentForm.getCityCountryDistrict(), garmentForm.getTownTownshipNeighborhood());
+        garment.setTitle(garmentForm.getTitle());
+        garment.setContent(garmentForm.getContent());
+        garment.setImage(garmentForm.getImage());
+        garment.setPrice(garmentForm.getPrice());
+        garment.setType(GarmentType.valueOf(garmentForm.getType()));
+        garment.setArea(area);
+        garment.setUpdatedDateTime(LocalDateTime.now());
+//        garmentRepository.save(garment);
+    }
+
 }

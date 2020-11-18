@@ -1,18 +1,21 @@
 package com.newmarket.garment.form;
 
-import com.newmarket.area.Area;
 import com.newmarket.garment.GarmentType;
 import com.newmarket.garment.annotation.GarmentEnumType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import org.hibernate.validator.constraints.Length;
+import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class GarmentForm {
 
     @NotBlank
