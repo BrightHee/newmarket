@@ -30,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class SettingsControllerTest {
 
     @Autowired MockMvc mockMvc;
+    @Autowired AccountFactory accountFactory;
     @Autowired AccountRepository accountRepository;
     @Autowired AccountService accountService;
     @Autowired PasswordEncoder passwordEncoder;
@@ -82,12 +83,7 @@ class SettingsControllerTest {
     @Test
     public void updateProfile_fail() throws Exception {
         // 이미 있는 닉네임으로 바꾸는 경우
-        SignUpForm signUpForm = new SignUpForm();
-        signUpForm.setNickname("테스트계정2");
-        signUpForm.setEmail("test2@email.com");
-        signUpForm.setPassword("abcd1234!");
-        signUpForm.setPasswordAgain("abcd1234!");
-        accountService.signUp(signUpForm);
+        accountFactory.createAccount("테스트계정2", "test2@email.com");
 
         ProfileForm profileForm = ProfileForm.builder()
                 .nickname("테스트계정2")
@@ -107,7 +103,7 @@ class SettingsControllerTest {
 
         Account account = accountRepository.findByEmail(TEST_EMAIL);
         assertNotNull(account);
-        assertNotEquals(account.getGreetings(), profileForm.getGreetings());
+        assertNotEquals(account.getNickname(), profileForm.getNickname());
     }
 
     @DisplayName("비밀번호 확인 화면 보이는지 확인")

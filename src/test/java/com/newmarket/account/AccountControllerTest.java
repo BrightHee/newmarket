@@ -31,10 +31,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AccountControllerTest {
 
     @Autowired private MockMvc mockMvc;
-    @Autowired private AccountService accountService;
+    @Autowired private AccountFactory accountFactory;
     @Autowired private AccountRepository accountRepository;
     @Autowired private PasswordEncoder passwordEncoder;
     @MockBean private EmailService emailService;
+
+    private final String TEST_EMAIL = "test@email.com";
+    private final String TEST_NICKNAME = "테스트계정";
 
     @DisplayName("회원 가입 화면 보이는지 확인")
     @Test
@@ -90,27 +93,20 @@ class AccountControllerTest {
     @DisplayName("이메일 인증 처리 - 토큰, 이메일 정상")
     @Test
     public void checkCertificationToken() throws Exception {
-        Account account = Account.builder()
-                .nickname("테스트계정")
-                .email("test@email.com")
-                .password("abcd1234!")
-                .certificationToken("test-token")
-                .certificationTokenGeneratedLocalDateTime(LocalDateTime.now())
-                .build();
-        Account savedAccount = accountRepository.save(account);
+        Account account = accountFactory.createAccount(TEST_NICKNAME, TEST_EMAIL);
 
         mockMvc.perform(get("/check-certification-token")
-                    .param("token", savedAccount.getCertificationToken())
-                    .param("email", savedAccount.getEmail()))
+                    .param("token", account.getCertificationToken())
+                    .param("email", account.getEmail()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("account/check-certification-token"))
-                .andExpect(model().attribute("nickname", savedAccount.getNickname()))
-                .andExpect(model().attribute("email", savedAccount.getEmail()))
+                .andExpect(model().attribute("nickname", account.getNickname()))
+                .andExpect(model().attribute("email", account.getEmail()))
                 .andExpect(authenticated().withUsername("test@email.com"));
 
-        assertTrue(savedAccount.isEmailVerified());
-        assertNotNull(savedAccount.getJoinedDateTime());
+        assertTrue(account.isEmailVerified());
+        assertNotNull(account.getJoinedDateTime());
     }
 
     @DisplayName("이메일 인증 처리 - 존재하지 않는 이메일")
@@ -130,19 +126,12 @@ class AccountControllerTest {
     @DisplayName("이메일 인증 처리 - 잘못된 토큰")
     @Test
     public void checkCertificationToken_with_invalid_token() throws Exception {
-        Account account = Account.builder()
-                .nickname("테스트계정")
-                .email("test@email.com")
-                .password("abcd1234!")
-                .certificationToken("test-token")
-                .certificationTokenGeneratedLocalDateTime(LocalDateTime.now())
-                .build();
-        Account savedAccount = accountRepository.save(account);
+        Account account = accountFactory.createAccount(TEST_NICKNAME, TEST_EMAIL);
 
         // 다른 토큰 보냄
         mockMvc.perform(get("/check-certification-token")
                     .param("token", "invalid-token")
-                    .param("email", savedAccount.getEmail()))
+                    .param("email", account.getEmail()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("account/check-certification-token"))
@@ -150,13 +139,13 @@ class AccountControllerTest {
                 .andExpect(unauthenticated());
 
         // 유효기간이 지난 토큰 보냄
-        savedAccount.setCertificationTokenGeneratedLocalDateTime(LocalDateTime.now().minusMinutes(11));
-        accountRepository.save(savedAccount);
+        account.setCertificationTokenGeneratedLocalDateTime(LocalDateTime.now().minusMinutes(11));
+        accountRepository.save(account);
         accountRepository.flush();
 
         mockMvc.perform(get("/check-certification-token")
-                    .param("token", savedAccount.getCertificationToken())
-                    .param("email", savedAccount.getEmail()))
+                    .param("token", account.getCertificationToken())
+                    .param("email", account.getEmail()))
                     .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("account/check-certification-token"))
@@ -177,24 +166,19 @@ class AccountControllerTest {
     @DisplayName("비밀번호 찾기 처리 - 성공")
     @Test
     public void findPassword() throws Exception {
-        Account account = Account.builder()
-                .nickname("테스트계정")
-                .email("test@email.com")
-                .password(passwordEncoder.encode("abcd1234!"))
-                .emailVerified(true)
-                .build();
-        Account savedAccount = accountRepository.save(account);
-        String oldPassword = savedAccount.getPassword();
+        Account account = accountFactory.createAccount(TEST_NICKNAME, TEST_EMAIL);
+        account.finishSignUp();
+        String oldPassword = account.getPassword();
 
         mockMvc.perform(post("/find-password")
-                    .param("email", savedAccount.getEmail())
+                    .param("email", account.getEmail())
                     .with(csrf()))
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/login"))
                 .andExpect(unauthenticated());
 
-        assertNotEquals(oldPassword, savedAccount.getPassword());
+        assertNotEquals(oldPassword, account.getPassword());
         then(emailService).should(times(1)).sendEmail(any(EmailMessage.class));  // 이메일 보내는지 확인
     }
 
@@ -213,17 +197,12 @@ class AccountControllerTest {
 
         then(emailService).shouldHaveNoInteractions();
 
-        Account account = Account.builder()
-                .nickname("테스트계정")
-                .email("test@email.com")
-                .password(passwordEncoder.encode("abcd1234!"))
-                .build();
-        Account savedAccount = accountRepository.save(account);
-        String oldPassword = savedAccount.getPassword();
+        Account account = accountFactory.createAccount(TEST_NICKNAME, TEST_EMAIL);
+        String oldPassword = account.getPassword();
 
         // 인증받지 않은 이메일
         mockMvc.perform(post("/find-password")
-                    .param("email", savedAccount.getEmail())
+                    .param("email", account.getEmail())
                     .with(csrf()))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -231,7 +210,7 @@ class AccountControllerTest {
                 .andExpect(model().attributeExists("errorMessage"))
                 .andExpect(unauthenticated());
 
-        assertEquals(oldPassword, savedAccount.getPassword());
+        assertEquals(oldPassword, account.getPassword());
         then(emailService).shouldHaveNoInteractions();
     }
 

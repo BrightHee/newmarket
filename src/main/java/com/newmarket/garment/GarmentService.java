@@ -48,7 +48,10 @@ public class GarmentService {
         garment.setType(GarmentType.valueOf(garmentForm.getType()));
         garment.setArea(area);
         garment.setUpdatedDateTime(LocalDateTime.now());
-//        garmentRepository.save(garment);
+        garmentRepository.save(garment);
     }
 
+    public boolean checkIfValidAccess(Garment garment, Account account) {
+        return !garment.isClosed() && garment.getAccount().getEmail().equals(account.getEmail());
+    }
 }

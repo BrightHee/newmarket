@@ -42,13 +42,17 @@ public class GarmentController {
         webDataBinder.addValidators(garmentFormValidator);
     }
 
+    @ModelAttribute("account")
+    public Account account(@AuthenticatedAccount Account account) {
+        return account;
+    }
+
     @GetMapping("/new-garment")
     public String newGarmentForm(@AuthenticatedAccount Account account, Model model, RedirectAttributes attributes) {
         if (!account.isEmailVerified()) {
             attributes.addFlashAttribute("errorMessage", "이메일 인증을 거쳐야 해당 서비스를 이용하실 수 있습니다.");
             return "redirect:/";
         }
-        model.addAttribute(account);
         model.addAttribute("garmentType", Stream.of(GarmentType.values()).map(Enum::name).collect(Collectors.toList()));
         model.addAttribute("cityProvinceList", cityProvince.getCityProvinceList());
         model.addAttribute("garmentForm", new GarmentForm());
@@ -63,7 +67,6 @@ public class GarmentController {
             return "redirect:/";
         }
         if (errors.hasErrors()) {
-            model.addAttribute(account);
             model.addAttribute("errorMessage", "글 작성에 실패했습니다.");
             model.addAttribute("garmentType", Stream.of(GarmentType.values()).map(Enum::name).collect(Collectors.toList()));
             model.addAttribute("cityProvinceList", cityProvince.getCityProvinceList());
@@ -93,10 +96,7 @@ public class GarmentController {
 
     @GetMapping("/garments")
     public String showGarments(@PageableDefault(size = 20, sort = "updatedDateTime", direction = Sort.Direction.DESC) Pageable pageable,
-                               Model model, @AuthenticatedAccount Account account) {
-        if (account != null) {
-            model.addAttribute(account);
-        }
+                               Model model) {
         Page<Garment> currentGarments = garmentRepository.findCurrentGarments(pageable);
         model.addAttribute("sortProperty", "updatedDateTime");
         model.addAttribute("currentGarments", currentGarments);
@@ -104,28 +104,23 @@ public class GarmentController {
     }
 
     @GetMapping("/garment/{id}")
-    public String showDetails(@PathVariable Long id, Model model, @AuthenticatedAccount Account account) {
-        if (account != null) {
-            model.addAttribute(account);
-        }
-        Optional<Garment> garment = garmentRepository.findById(id);
-        model.addAttribute("garment", garment.orElseThrow());
+    public String showDetails(@PathVariable Long id, Model model) {
+        Garment garment = garmentRepository.findById(id).orElseThrow();
+        model.addAttribute("garment", garment);
         return "garment/details";
     }
 
     @GetMapping("/garments/management")
     public String manageGarments(@AuthenticatedAccount Account account, Model model) {
         List<Garment> garments = garmentRepository.findByAccountAndClosed(account, false);
-        model.addAttribute(account);
         model.addAttribute("garments", garments);
         return "garment/management";
     }
 
     @GetMapping("/garment/{id}/update")
     public String updateGarmentForm(@PathVariable Long id, @AuthenticatedAccount Account account, Model model) {
-        model.addAttribute(account);
         Garment garment = garmentRepository.findById(id).orElseThrow();
-        if (garment.isClosed() || !garment.getAccount().getEmail().equals(account.getEmail())) {
+        if (!garmentService.checkIfValidAccess(garment, account)) {
             model.addAttribute("errorMessage", "잘못된 접근입니다.");
             return "garment/management";
         }
@@ -152,21 +147,19 @@ public class GarmentController {
     @PostMapping("/garment/{id}/update")
     public String updateGarment(@PathVariable Long id, @Valid GarmentForm garmentForm, Errors errors,
                                 @AuthenticatedAccount Account account, Model model, RedirectAttributes attributes) {
-        model.addAttribute(account);
-
         Garment garment = garmentRepository.findWithAccountById(id).orElseThrow();
-        if (garment.isClosed() || !garment.getAccount().getEmail().equals(account.getEmail())) {
+        if (!garmentService.checkIfValidAccess(garment, account)) {
             model.addAttribute("errorMessage", "잘못된 접근입니다.");
             return "garment/management";
         }
         if (errors.hasErrors()) {
             model.addAttribute("errorMessage", "글 수정에 실패했습니다.");
-            model.addAttribute("garmentType", Stream.of(GarmentType.values()).map(Enum::name).collect(Collectors.toList()));
             model.addAttribute("cityProvinceList", cityProvince.getCityProvinceList());
             model.addAttribute("cityCountryDistrictList",
                     areaRepository.findDistinctCityCountryDistrict(garmentForm.getCityProvince()));
             model.addAttribute("townTownshipNeighborhoodList",
                     areaRepository.findTownTownshipNeighborhood(garmentForm.getCityProvince(), garmentForm.getCityCountryDistrict()));
+            model.addAttribute("garmentType", Stream.of(GarmentType.values()).map(Enum::name).collect(Collectors.toList()));
             return "garment/update";
         }
         garmentService.updateGarment(garment, garmentForm);
@@ -177,10 +170,8 @@ public class GarmentController {
     @PostMapping("/garment/{id}/delete")
     public String deleteGarment(@PathVariable Long id, @AuthenticatedAccount Account account, Model model,
                                 RedirectAttributes attributes) {
-        model.addAttribute(account);
-
         Garment garment = garmentRepository.findWithAccountById(id).orElseThrow();
-        if (garment.isClosed() || !garment.getAccount().getEmail().equals(account.getEmail())) {
+        if (!garmentService.checkIfValidAccess(garment, account)) {
             model.addAttribute("errorMessage", "잘못된 접근입니다.");
             return "garment/management";
         }
