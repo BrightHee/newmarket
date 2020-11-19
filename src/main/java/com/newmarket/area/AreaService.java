@@ -35,9 +35,9 @@ public class AreaService {
                                 .build();
                     }).collect(Collectors.toList());
             areaRepository.saveAll(areaList);
-            List<String> list = areaRepository.findDistinctCityProvince();
-            cityProvince.setCityProvinceList(list);
         }
+        List<String> list = areaRepository.findDistinctCityProvince();
+        cityProvince.setCityProvinceList(list);
     }
 
 }
