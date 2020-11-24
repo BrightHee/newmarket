@@ -51,7 +51,7 @@ public class GarmentService {
         garmentRepository.save(garment);
     }
 
-    public boolean checkIfValidAccess(Garment garment, Account account) {
+    public boolean checkIfValidAccessToModify(Garment garment, Account account) {
         return !garment.isClosed() && garment.getAccount().getEmail().equals(account.getEmail());
     }
 }

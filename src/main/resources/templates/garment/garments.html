@@ -17,8 +17,80 @@
 <nav th:replace="fragments.html :: main-nav"></nav>
 
 <div class="container my-3">
+    <div th:replace="fragments.html :: error-message"></div>
     <div th:replace="fragments.html :: success-message"></div>
     <div class="bg-light border-dark p-5">
+        <div class="row justify-content-center py-4">
+            <div class="col-sm-9">
+                <form th:object="${detailSearchForm}" class="needs-validation form-inline" th:action="@{/garments}" method="get" novalidate>
+                    <div class="form-group col-sm-2 justify-content-center">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"> 상태 </span>
+                            </div>
+                            <select th:field="*{closed}" name="closed-option" class="browser-default custom-select" required>
+                                <option value="전체" selected>전체</option>
+                                <option value="판매중">판매중</option>
+                            </select>
+                            <small class="invalid-feedback">상태를 선택하세요.</small>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-2 justify-content-center">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"> 기간 </span>
+                            </div>
+                            <select th:field="*{duration}" name="duration-option" class="browser-default custom-select" required>
+                                <option value="오늘">오늘</option>
+                                <option value="이번주" selected>이번주</option>
+                                <option value="1개월">1개월</option>
+                                <option value="6개월">6개월</option>
+                            </select>
+                            <small class="invalid-feedback">기간을 선택하세요.</small>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-2 justify-content-center">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"> 시/도 </span>
+                            </div>
+                            <select th:field="*{cityProvince}" name="area-option" id="cityProvince" class="browser-default custom-select" required>
+                                <option value="전체" selected>전체</option>
+                                <option th:if="${cityProvinceList}" th:each="cp : ${cityProvinceList}" th:value="${cp}" th:text="${cp}"></option>
+                            </select>
+                            <small class="invalid-feedback">시/도를 선택하세요.</small>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-2 justify-content-center">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"> 시/군/구 </span>
+                            </div>
+                            <select th:field="*{cityCountryDistrict}" name="area-option" id="cityCountryDistrict" class="browser-default custom-select" required>
+                                <option value="전체" selected>전체</option>
+                                <option th:if="${cityCountryDistrictList}" th:each="ccd : ${cityCountryDistrictList}" th:value="${ccd}" th:text="${ccd}"></option>
+                            </select>
+                            <small class="invalid-feedback">시/군/구를 선택하세요.</small>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-2 justify-content-center">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"> 읍/면/동 </span>
+                            </div>
+                            <select th:field="*{townTownshipNeighborhood}" name="area-option" id="townTownshipNeighborhood" class="browser-default custom-select" required>
+                                <option value="전체" selected>전체</option>
+                                <option th:if="${townTownshipNeighborhoodList}" th:each="ttn : ${townTownshipNeighborhoodList}" th:value="${ttn}" th:text="${ttn}"></option>
+                            </select>
+                            <small class="invalid-feedback">읍/면/동를 선택하세요.</small>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-2 justify-content-center">
+                        <button type="submit" class="btn btn-info">검색</button>
+                    </div>
+                </form>
+            </div>
+        </div>
         <div class="row">
             <div th:each="garment: ${currentGarments}" class="col-sm-3 mb-3">
                 <a th:href="@{'/garment/' + ${garment.id}}" class="text-reset text-decoration-none">
@@ -49,7 +121,7 @@
                 </a>
             </div>
         </div>
-        <div class="row justify-content-center">
+        <div th:if="${currentGarments != null && !currentGarments.isEmpty()}" class="row justify-content-center">
             <div class="col-sm-8">
                 <nav>
                     <ul class="pagination justify-content-center">
@@ -81,6 +153,9 @@
 
 <script th:include="fragments.html :: korea-date-time" th:remove="tag"></script>
 <script th:replace="fragments.html :: price-with-comma"></script>
+<script th:replace="fragments.html :: form-validation"></script>
+<script th:replace="fragments.html :: ajax-csrf-token"></script>
+<script th:replace="fragments.html :: ajax-area-info(formType = 'get')"></script>
 
 </body>
 </html>

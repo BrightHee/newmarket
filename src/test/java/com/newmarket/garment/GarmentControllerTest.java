@@ -68,7 +68,7 @@ class GarmentControllerTest {
         cityProvinceForm.setCityProvince(CITY_PROVINCE);
         String content = objectMapper.writeValueAsString(cityProvinceForm);
 
-        String responseString = mockMvc.perform(post("/new-garment/cityCountryDistrict")
+        String responseString = mockMvc.perform(post("/garment/area/cityCountryDistrict")
                     .characterEncoding("utf8")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(content)
@@ -91,7 +91,7 @@ class GarmentControllerTest {
         cityCountryDistrictForm.setCityCountryDistrict(CITY_COUNTRY_DISTRICT);
         String content = objectMapper.writeValueAsString(cityCountryDistrictForm);
 
-        String responseString = mockMvc.perform(post("/new-garment/townTownshipNeighborhood")
+        String responseString = mockMvc.perform(post("/garment/area/townTownshipNeighborhood")
                     .characterEncoding("utf8")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(content)
@@ -125,7 +125,7 @@ class GarmentControllerTest {
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/garments"))
-                .andExpect(flash().attributeExists("successMessage"))
+                .andExpect(flash().attributeExists("successMessage", "detailSearchForm"))
                 .andExpect(authenticated().withUsername(TEST_EMAIL));
         assertFalse(garmentRepository.findAll().isEmpty());
     }
@@ -149,7 +149,8 @@ class GarmentControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("garment/new-garment"))
-                .andExpect(model().attributeExists("account", "errorMessage"))
+                .andExpect(model().attributeExists("account", "errorMessage", "garmentType", "cityProvinceList"))
+                .andExpect(model().hasErrors())
                 .andExpect(authenticated().withUsername(TEST_EMAIL));
         assertTrue(garmentRepository.findAll().isEmpty());
 
@@ -167,7 +168,8 @@ class GarmentControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("garment/new-garment"))
-                .andExpect(model().attributeExists("account", "errorMessage"))
+                .andExpect(model().attributeExists("account", "errorMessage", "garmentType", "cityProvinceList"))
+                .andExpect(model().hasErrors())
                 .andExpect(authenticated().withUsername(TEST_EMAIL));
         assertTrue(garmentRepository.findAll().isEmpty());
 
@@ -185,7 +187,8 @@ class GarmentControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("garment/new-garment"))
-                .andExpect(model().attributeExists("account", "errorMessage"))
+                .andExpect(model().attributeExists("account", "errorMessage", "garmentType", "cityProvinceList"))
+                .andExpect(model().hasErrors())
                 .andExpect(authenticated().withUsername(TEST_EMAIL));
         assertTrue(garmentRepository.findAll().isEmpty());
     }
@@ -201,7 +204,8 @@ class GarmentControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("garment/garments"))
-                .andExpect(model().attributeExists("currentGarments")).andReturn();
+                .andExpect(model().attributeExists("currentGarments", "sortProperty", "detailSearchForm", "cityProvinceList"))
+                .andReturn();
 
         Page page = (Page) result.getModelAndView().getModel().get("currentGarments");
         assertEquals(page.getSize(), 20);
@@ -213,6 +217,23 @@ class GarmentControllerTest {
             Garment garment = (Garment) page.getContent().get(i);
             assertEquals(garment.getTitle(), "제목(" + (100-i) + ")");
         }
+    }
+
+    @DisplayName("전체 옷(페이징) 화면 보이는지 확인 - 잘못된 검색 값 전달")
+    @WithAccount(TEST_EMAIL)
+    @Test
+    public void showGarments_with_wrong_value() throws Exception {
+        accountFactory.verifyEmail(TEST_EMAIL);
+        garmentFactory.createGarment(100, accountRepository.findByEmail(TEST_EMAIL),
+                CITY_PROVINCE, CITY_COUNTRY_DISTRICT, TOWN_TOWNSHIP_NEIGHBORHOOD);
+        mockMvc.perform(get("/garments")
+                    .param("closed", "")
+                    .param("duration", "없는값"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("garment/garments"))
+                .andExpect(model().attributeExists("errorMessage", "detailSearchForm", "cityProvinceList"))
+                .andExpect(model().hasNoErrors());  // 기본 detailSearchForm을 model에 추가
     }
 
     @DisplayName("상세 옷 화면 보이는지 확인")

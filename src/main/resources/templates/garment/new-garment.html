@@ -29,7 +29,7 @@
 <script th:include="fragments.html :: editor-script" th:remove="tag"></script>
 <script th:include="fragments.html :: image-cropper(imageId = 'garmentImage')" th:remove="tag"></script>
 <script th:replace="fragments.html :: ajax-csrf-token"></script>
-<script th:replace="fragments.html :: ajax-area-info"></script>
+<script th:replace="fragments.html :: ajax-area-info(formType = 'post')"></script>
 
 </body>
 </html>

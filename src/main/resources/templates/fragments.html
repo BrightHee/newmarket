@@ -5,6 +5,8 @@
 
 <head th:fragment="head">
     <meta charset="UTF-8">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>뉴마켓</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
@@ -58,7 +60,7 @@
                         <!-- TODO: th:href -->
                         <a class="dropdown-item" th:href="@{/settings/profile}"><span th:text="${account?.nickname}"></span></a>
                         <a class="dropdown-item" href="#">구매 정보보기</a>
-                        <a class="dropdown-item" href="#">판매 정보보기</a>
+                        <a class="dropdown-item" th:href="@{/garments/management}">판매 정보보기</a>
                         <a class="dropdown-item" th:href="@{/new-garment}">옷 판매하기</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="/settings/profile">내 정보 변경하기</a>
@@ -291,18 +293,19 @@
     }());
 </script>
 
-<script th:fragment="ajax-area-info" type="application/javascript">
+<script th:fragment="ajax-area-info(formType)" type="application/javascript">
     $(function () {
         let $cityProvince = $("#cityProvince");
         let $cityCountryDistrict = $('#cityCountryDistrict');
         let $townTownshipNeighborhood = $('#townTownshipNeighborhood');
+        const postType = "[(${formType})]" === 'post';
 
         $cityProvince.change(function() {
             $.ajax({
                 dataType: "json",
                 contentType: "application/json; charset=utf-8",
                 method: "POST",
-                url: "/new-garment/cityCountryDistrict",
+                url: "/garment/area/cityCountryDistrict",
                 data: JSON.stringify({ 'cityProvince': $cityProvince.val() })
             }).done(function (data, status) {
                 if (data !== null) {
@@ -310,14 +313,14 @@
                     $townTownshipNeighborhood.html('');
                     $('<option>').attr({
                         selected: true,
-                        hidden: true,
-                        value: ''
-                    }).text('선택하세요').appendTo($cityCountryDistrict);
+                        hidden: postType ? true : false,
+                        value: postType ? '' : '전체'
+                    }).text(postType ? '선택하세요' : '전체').appendTo($cityCountryDistrict);
                     $('<option>').attr({
                         selected: true,
-                        hidden: true,
-                        value: ''
-                    }).text('선택하세요').appendTo($townTownshipNeighborhood);
+                        hidden: postType ? true : false,
+                        value: postType ? '' : '전체'
+                    }).text(postType ? '선택하세요' : '전체').appendTo($townTownshipNeighborhood);
                 }
                 $.each(data, function (idx, el) {
                     $cityCountryDistrict.append(new Option(el, el));
@@ -330,7 +333,7 @@
                 dataType: "json",
                 contentType: "application/json; charset=utf-8",
                 method: "POST",
-                url: "/new-garment/townTownshipNeighborhood",
+                url: "/garment/area/townTownshipNeighborhood",
                 data: JSON.stringify({
                     'cityProvince': $cityProvince.val(),
                     'cityCountryDistrict': $cityCountryDistrict.val()
@@ -340,9 +343,9 @@
                     $townTownshipNeighborhood.html('');
                     $('<option>').attr({
                         selected: true,
-                        hidden: true,
-                        value: ''
-                    }).text('선택하세요').appendTo($townTownshipNeighborhood);
+                        hidden: postType ? true : false,
+                        value: postType ? '' : '전체'
+                    }).text(postType ? '선택하세요' : '전체').appendTo($townTownshipNeighborhood);
                 }
                 $.each(data, function (idx, el) {
                     $townTownshipNeighborhood.append(new Option(el, el));
@@ -444,10 +447,10 @@
 
 <script th:fragment="ajax-csrf-token" type="application/javascript" th:inline="javascript">  // ajax request csrf token
     $(function () {
-        const csrfToken = /*[[${_csrf.token}]]*/ null;
-        const csrfHeader = /*[[${_csrf.headerName}]]*/ null;
+        var token = $("meta[name='_csrf']").attr("content");
+        var header = $("meta[name='_csrf_header']").attr("content");
         $(document).ajaxSend(function (e, xhr, options) {
-            xhr.setRequestHeader(csrfHeader, csrfToken);
+            xhr.setRequestHeader(header, token);
         });
     });
 </script>
