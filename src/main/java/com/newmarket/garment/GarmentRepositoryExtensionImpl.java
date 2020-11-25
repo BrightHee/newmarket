@@ -2,6 +2,7 @@ package com.newmarket.garment;
 
 import com.newmarket.area.QArea;
 import com.newmarket.garment.form.DetailSearchForm;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPQLQuery;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class GarmentRepositoryExtensionImpl extends QuerydslRepositorySupport implements GarmentRepositoryExtension {
 
@@ -32,6 +34,24 @@ public class GarmentRepositoryExtensionImpl extends QuerydslRepositorySupport im
                     eqCityProvince(cityProvince),
                     eqCityCountryDistrict(cityProvince, cityCountryDistrict),
                     eqTownTownshipNeighborhood(cityProvince, cityCountryDistrict, townTownshipNeighborhood))
+                .leftJoin(garment.area, QArea.area).fetchJoin();
+        JPQLQuery<Garment> pageableQuery = getQuerydsl().applyPagination(pageable, query);
+        QueryResults<Garment> fetchResults = pageableQuery.fetchResults();
+        return new PageImpl<>(fetchResults.getResults(), pageable, fetchResults.getTotal());
+    }
+
+    @Override
+    public Page<Garment> findByKeywords(Pageable pageable, List<String> keywordList) {
+        BooleanBuilder builder = new BooleanBuilder();
+        for (String keyword : keywordList) {
+            builder.or(garment.title.containsIgnoreCase(keyword)
+                    .or(garment.area.cityProvince.containsIgnoreCase(keyword))
+                    .or(garment.area.cityCountryDistrict.containsIgnoreCase(keyword))
+                    .or(garment.area.townTownshipNeighborhood.containsIgnoreCase(keyword)));
+        }
+        builder.and(garment.closed.isFalse());
+        JPQLQuery<Garment> query = from(garment)
+                .where(builder)
                 .leftJoin(garment.area, QArea.area).fetchJoin();
         JPQLQuery<Garment> pageableQuery = getQuerydsl().applyPagination(pageable, query);
         QueryResults<Garment> fetchResults = pageableQuery.fetchResults();

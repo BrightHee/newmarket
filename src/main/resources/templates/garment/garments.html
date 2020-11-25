@@ -91,61 +91,8 @@
                 </form>
             </div>
         </div>
-        <div class="row">
-            <div th:each="garment: ${currentGarments}" class="col-sm-3 mb-3">
-                <a th:href="@{'/garment/' + ${garment.id}}" class="text-reset text-decoration-none">
-                    <div class="card border-dark shadow-sm h-100" th:classappend="${garment.closed}? 'closed-card'">
-                        <div class="card-header">
-                            <img class="card-img-top" th:if="${#strings.isEmpty(garment.image)}"
-                                 src="/images/no_image.png" width="250" alt="옷 이미지" />
-                            <img class="card-img-top" th:if="${!#strings.isEmpty(garment.image)}"
-                                 th:src="${garment.image}" width="250" alt="옷 이미지" />
-                        </div>
-                        <div class="card-body">
-                            <h5 class="card-title"><span th:text="${garment.title}"></span></h5>
-                            <div class="text-right card-text">
-                                <div><span th:text="${garment.type}"></span></div>
-                                <div><span id="garment-price" th:text="${garment.price}"></span>원</div>
-                            </div>
-                            <h2 th:if="${garment.closed}" class="text-danger font-weight-bold">판매 완료</h2>
-                        </div>
-                        <div class="card-footer text-right">
-                            <div>
-                                <small class="text-muted">
-                                    <span th:text="${garment.area.cityProvince + ' ' + garment.area.cityCountryDistrict + ' ' + garment.area.townTownshipNeighborhood}"></span>
-                                </small>
-                            </div>
-                            <small class="text-muted date-time"><span th:text="${garment.updatedDateTime}"></span></small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </div>
-        <div th:if="${currentGarments != null && !currentGarments.isEmpty()}" class="row justify-content-center">
-            <div class="col-sm-8">
-                <nav>
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item" th:classappend="${!currentGarments.hasPrevious()}? disabled">
-                            <a th:href="@{'/garments?sort=' + ${sortProperty} + ',desc&page=' + ${currentGarments.getNumber() - 1}}"
-                               class="page-link" tabindex="-1" aria-disabled="true">
-                                이전
-                            </a>
-                        </li>
-                        <li class="page-item" th:classappend="${i == currentGarments.getNumber()}? active"
-                            th:each="i : ${#numbers.sequence(0, currentGarments.getTotalPages() - 1, 1)}">
-                            <a th:href="@{'/garments?sort=' + ${sortProperty} + ',desc&page=' + ${i}}"
-                               class="page-link" th:text="${i + 1}">1</a>
-                        </li>
-                        <li class="page-item" th:classappend="${!currentGarments.hasNext()}? disabled">
-                            <a th:href="@{'/garments?sort=' + ${sortProperty} + ',desc&page=' + ${currentGarments.getNumber() + 1}}"
-                               class="page-link" tabindex="-1" aria-disabled="true">
-                                다음
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
-        </div>
+        <div th:replace="fragments.html :: garments-card-view"></div>
+        <div th:replace="fragments.html :: pagenation-btn(url = '/garments', keywords = '')"></div>
     </div>
 </div>
 
