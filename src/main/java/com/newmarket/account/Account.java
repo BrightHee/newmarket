@@ -68,4 +68,9 @@ public class Account {
     public void getNewPassword() {
         this.password = UUID.randomUUID().toString().replace("-", "");
     }
+
+    public boolean canChatFor(Account account) {
+        return !this.equals(account) && this.isEmailVerified() && account.isEmailVerified();
+    }
+
 }

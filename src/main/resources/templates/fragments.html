@@ -57,7 +57,6 @@
                              class="rounded border" width="24" height="24" />
                     </a>
                     <div class="dropdown-menu dropdown-menu-sm-right" aria-labelledby="userDropdown">
-                        <!-- TODO: th:href -->
                         <a class="dropdown-item" th:href="@{/settings/profile}"><span th:text="${account?.nickname}"></span></a>
                         <a class="dropdown-item" href="#">구매 정보보기</a>
                         <a class="dropdown-item" th:href="@{/garments/management}">판매 정보보기</a>
@@ -537,6 +536,9 @@
             moment.locale('ko');
             $(".date-time").text(function (idx, dateTime) {
                 return moment(dateTime, "YYYY-MM-DD hh:mm a").format('LLL');
+            });
+            $(".simple-date-time").text(function(index, dateTime) {
+                return moment(dateTime, "YYYY-MM-DD`T`hh:mm").format('YY-MM-DD hh:mm A');
             });
         });
     </script>

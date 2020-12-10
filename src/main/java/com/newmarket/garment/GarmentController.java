@@ -1,13 +1,18 @@
 package com.newmarket.garment;
 
 import com.newmarket.account.Account;
+import com.newmarket.account.AccountRepository;
 import com.newmarket.account.annotation.AuthenticatedAccount;
 import com.newmarket.area.AreaRepository;
 import com.newmarket.area.CityProvince;
-import com.newmarket.garment.form.CityCountryDistrictForm;
-import com.newmarket.garment.form.CityProvinceForm;
-import com.newmarket.garment.form.DetailSearchForm;
-import com.newmarket.garment.form.GarmentForm;
+import com.newmarket.chatRoom.Chat;
+import com.newmarket.chatRoom.ChatRoom;
+import com.newmarket.chatRoom.ChatRoomRepository;
+import com.newmarket.chatRoom.ChatRoomService;
+import com.newmarket.chatRoom.form.MessageForm;
+import com.newmarket.garment.form.*;
+import com.newmarket.garment.validator.ChatPartnerFormValidator;
+import com.newmarket.garment.validator.ChatRoomFormValidator;
 import com.newmarket.garment.validator.DetailSearchFormValidator;
 import com.newmarket.garment.validator.GarmentFormValidator;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +43,11 @@ public class GarmentController {
     private final AreaRepository areaRepository;
     private final GarmentFormValidator garmentFormValidator;
     private final DetailSearchFormValidator detailSearchFormValidator;
+    private final ChatRoomService chatRoomService;
+    private final AccountRepository accountRepository;
+    private final ChatRoomFormValidator chatRoomFormValidator;
+    private final ChatRoomRepository chatRoomRepository;
+    private final ChatPartnerFormValidator chatPartnerFormValidator;
 
     @InitBinder("garmentForm")
     public void validateGarmentForm(WebDataBinder webDataBinder) {
@@ -47,6 +57,16 @@ public class GarmentController {
     @InitBinder("detailSearchForm")
     public void validateDetailSearchForm(WebDataBinder webDataBinder) {
         webDataBinder.addValidators(detailSearchFormValidator);
+    }
+
+    @InitBinder("chatRoomForm")
+    public void validateChatRoomForm(WebDataBinder webDataBinder) {
+        webDataBinder.addValidators(chatRoomFormValidator);
+    }
+
+    @InitBinder("chatPartnerForm")
+    public void validateChatPartnerForm(WebDataBinder webDataBinder) {
+        webDataBinder.addValidators(chatPartnerFormValidator);
     }
 
     @ModelAttribute("account")
@@ -123,9 +143,12 @@ public class GarmentController {
     }
 
     @GetMapping("/garment/{id}")
-    public String showDetails(@PathVariable Long id, Model model) {
+    public String showDetails(@PathVariable Long id, Model model, @AuthenticatedAccount Account account) {
         Garment garment = garmentRepository.findById(id).orElseThrow();
         model.addAttribute("garment", garment);
+        if (account.equals(garment.getAccount())) {
+            model.addAttribute("chatRoomList", chatRoomRepository.findByGarmentAndSeller(garment, account));
+        }
         return "garment/details";
     }
 
@@ -139,7 +162,7 @@ public class GarmentController {
     @GetMapping("/garment/{id}/update")
     public String updateGarmentForm(@PathVariable Long id, @AuthenticatedAccount Account account, Model model) {
         Garment garment = garmentRepository.findById(id).orElseThrow();
-        if (!garmentService.checkIfValidAccessToModify(garment, account)) {
+        if (!garment.checkIfValidAccessToModify(account)) {
             model.addAttribute("errorMessage", "잘못된 접근입니다.");
             return "garment/management";
         }
@@ -167,7 +190,7 @@ public class GarmentController {
     public String updateGarment(@PathVariable Long id, @Valid GarmentForm garmentForm, Errors errors,
                                 @AuthenticatedAccount Account account, Model model, RedirectAttributes attributes) {
         Garment garment = garmentRepository.findWithAccountById(id).orElseThrow();
-        if (!garmentService.checkIfValidAccessToModify(garment, account)) {
+        if (!garment.checkIfValidAccessToModify(account)) {
             model.addAttribute("errorMessage", "잘못된 접근입니다.");
             return "garment/management";
         }
@@ -190,13 +213,51 @@ public class GarmentController {
     public String deleteGarment(@PathVariable Long id, @AuthenticatedAccount Account account, Model model,
                                 RedirectAttributes attributes) {
         Garment garment = garmentRepository.findWithAccountById(id).orElseThrow();
-        if (!garmentService.checkIfValidAccessToModify(garment, account)) {
+        if (!garment.checkIfValidAccessToModify(account)) {
             model.addAttribute("errorMessage", "잘못된 접근입니다.");
             return "garment/management";
         }
         garmentService.deleteGarment(garment);
         attributes.addFlashAttribute("successMessage", "성공적으로 글을 삭제했습니다.");
         return "redirect:/garments/management";
+    }
+
+    @PostMapping("/garment/{id}/chat")
+    @ResponseBody
+    public ResponseEntity sendChatMessage(@PathVariable Long id, @Valid @RequestBody ChatRoomForm chatRoomForm,
+                                          @AuthenticatedAccount Account account) {
+        Garment garment = garmentRepository.findWithAccountById(id).orElseThrow();
+        Account seller = accountRepository.findByNickname(chatRoomForm.getSellerNickname());
+        Account buyer = accountRepository.findByNickname(chatRoomForm.getBuyerNickname());
+        if (!seller.canChatFor(buyer)) {
+            return ResponseEntity.badRequest().build();
+        }
+        ChatRoom chatRoom = chatRoomRepository.findBySellerAndBuyerAndGarment(seller, buyer, garment);
+        if (chatRoom == null || !chatRoom.hasMemberOf(account)) {
+            return ResponseEntity.badRequest().build();
+        }
+        Chat chat = chatRoomService.addNewChatMessage(chatRoomForm, chatRoom, account);
+        MessageForm messageForm = MessageForm.builder().nickname(chat.getSender().getNickname())
+                .me(true).message(chat.getMessage()).sentDateTime(chat.getSentDateTime()).build();
+        return ResponseEntity.ok().header("Content-Type", "application/json; charset=utf-8")
+                .body(messageForm);
+    }
+
+    @PostMapping("/garment/{id}/chatList")
+    @ResponseBody
+    public ResponseEntity getChatList(@PathVariable Long id, @Valid @RequestBody ChatPartnerForm chatPartnerForm,
+                                      @AuthenticatedAccount Account account) {
+        Garment garment = garmentRepository.findWithAccountById(id).orElseThrow();
+        Account partner = accountRepository.findByNickname(chatPartnerForm.getNickname());
+        if (!account.canChatFor(partner)) {
+            return ResponseEntity.badRequest().build();
+        }
+        ChatRoom chatRoom = chatRoomService.findOrCreateNew(account, partner, chatPartnerForm.getBuyerOrSeller(), garment);
+        List<MessageForm> chatList = chatRoom.getChatList().stream().map(chat -> MessageForm.builder()
+                .nickname(chat.getSender().getNickname()).me(chat.getSender().equals(account)).message(chat.getMessage())
+                .sentDateTime(chat.getSentDateTime()).build()).collect(Collectors.toList());
+        return ResponseEntity.ok().header("Content-Type", "application/json; charset=utf-8")
+                .body(chatList);
     }
 
 }

@@ -6,6 +6,81 @@
         .container {
             max-width: 100%;
         }
+        .modal-dialog,
+        .modal-content {
+            height: 80%;
+        }
+        .modal-body {
+            height: 80%;
+            overflow-y: auto;
+        }
+        .chat-list-group {
+            display: inline-block;
+            width: 100%;
+        }
+        .your-chat {
+            display: inline-block;
+            position: relative;
+            left: 20px;
+            background: #57f1ff;
+            border: 0;
+            border-radius: .4em;
+            max-width: calc(100% - 20px);
+            float: left;
+            clear: both;
+            padding: 0.75rem 1rem;
+        }
+        .your-chat:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 0;
+            height: 0;
+            border: 20px solid transparent;
+            border-right-color: #57f1ff;
+            border-left: 0;
+            margin-top: -20px;
+            margin-left: -20px;
+        }
+        .my-chat {
+            display: inline-block;
+            position: relative;
+            right: 20px;
+            background: #ffe957;
+            border: 0;
+            border-radius: .4em;
+            max-width: calc(100% - 20px);
+            float: right;
+            clear: both;
+            padding: 0.75rem 1rem;
+        }
+        .my-chat:after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            width: 0;
+            height: 0;
+            border: 20px solid transparent;
+            border-left-color: #ffe957;
+            border-right: 0;
+            margin-top: -20px;
+            margin-right: -20px;
+        }
+        .your-chat-time {
+            left: 20px;
+            float: left;
+            clear: both;
+            margin-left: 20px;
+            margin-bottom: 7px;
+        }
+        .my-chat-time {
+            float: right;
+            clear: both;
+            margin-bottom: 7px;
+            margin-right: 20px;
+        }
     </style>
 </head>
 
@@ -54,6 +129,7 @@
         <hr />
         <div class="row justify-content-center">
             <div class="col-sm-5 mb-2">
+                <div th:text="${garment.id}" id="garment-id" hidden></div>
                 <p class="lead"> <span th:text="${garment.title}"></span> </p>
                 <small class="text-muted">
                     <span th:text="${garment.type}" class="mr-4"></span>
@@ -62,12 +138,42 @@
                 </small>
                 <h5 class="mt-2 mb-5"> <span id="garment-price" th:text="${garment.price}"></span> 원</h5>
                 <span th:utext="${garment.content}"></span>
-<!--                TODO: 구매 신청 버튼 -->
-                <form th:if="${account != garment.account}" th:action="@{/}" method="post" class="text-right">
-                    <div class="form-group">
-                        <button class="btn btn-info" type="submit" > 구매 신청 </button>
+                <button th:if="${account.canChatFor(garment.account)}"
+                        class="btn btn-info pull-right" data-toggle="modal" data-target="#chat-room">
+                    판매자와 채팅하기
+                </button>
+                <div th:if="${account.equals(garment.account)}">
+                    <hr />
+                    <p class="lead text-center"> <span class="h6">구매 희망자와 채팅하기</span> </p>
+                    <button th:each="chatRoom : ${chatRoomList}" th:text="${chatRoom.buyer.nickname}"
+                            class="btn btn-info mr-2 buyer-chat-room-btn" data-toggle="modal" data-target="#chat-room"></button>
+                </div>
+            </div>
+            <div class="modal fade" id="chat-room" tabindex="-1" role="dialog" aria-labelledby="chat-room-title" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="chat-room-title">
+                                <span id="seller-nickname" th:text="${garment.account.nickname}"></span>님과
+                                <span id="buyer-nickname" th:text="${!account.equals(garment.account) ? account.nickname : ''}"></span>님의 채팅방
+                            </h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <ul id="chat-list" class="list-group chat-list-group"></ul>
+                        </div>
+                        <div class="modal-footer p-0">
+                            <div class="input-group m-0">
+                                <input id="message-input" class="form-control rounded-0" name="message" type="text" placeholder="메시지를 입력하세요." required />
+                                <div class="input-group-append">
+                                    <button id="message-btn" class="btn btn-primary rounded-0" type="submit">메시지 전송</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
@@ -75,8 +181,72 @@
 
 <footer th:replace="fragments.html :: main-footer"></footer>
 
-<script th:include="fragments.html :: korea-date-time" th:remove="tag"></script>
 <script th:replace="fragments.html :: price-with-comma"></script>
+<script th:include="fragments.html :: korea-date-time" th:remove="tag"></script>
+<script th:replace="fragments.html :: ajax-csrf-token"></script>
+<script type="application/javascript">
+    $(function () {
+        const $chatRoom = $("#chat-room");
+        const $chatList = $("#chat-list");
+        let buyerNickname = $("#buyer-nickname").text();
+
+        $(".buyer-chat-room-btn").click(function (e) {
+            buyerNickname = e.target.textContent;
+        });
+
+        $chatRoom.on('show.bs.modal', function (e) {
+            const isSeller = $("#buyer-nickname").text() !== buyerNickname;
+            if (isSeller) {
+                $("#buyer-nickname").text(buyerNickname);
+            }
+
+            $.ajax({
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                method: "POST",
+                url: "/garment/" + $("#garment-id").text() + "/chatList",
+                data: JSON.stringify({  // partner info
+                    "buyerOrSeller": isSeller ? "buyer" : "seller",
+                    "nickname": isSeller ? $("#buyer-nickname").text() : $("#seller-nickname").text()
+            })
+            }).done(function (data, status) {
+                $chatList.html('');
+                $.each(data, function (idx, el) {
+                    $('<li>').text(el.message)
+                        .addClass(el.me ? 'my-chat' : 'your-chat').appendTo($chatList);
+                    $('<small>').text(moment(el.sentDateTime, "YYYY-MM-DD`T`hh:mm").format('YY-MM-DD hh:mm A'))
+                        .addClass(el.me ? 'my-chat-time' : 'your-chat-time').addClass('text-muted').appendTo($chatList);
+                });
+            });
+        });
+    });
+</script>
+<script type="application/javascript">
+    $(function () {
+        const $messageInput = $("#message-input");
+        const $messageBtn = $("#message-btn");
+        const $chatList = $("#chat-list");
+
+        $messageBtn.click(function () {
+            $.ajax({
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                method: "POST",
+                url: "/garment/" + $("#garment-id").text() + "/chat",
+                data: JSON.stringify({
+                    "buyerNickname": $("#buyer-nickname").text(),
+                    "sellerNickname": $("#seller-nickname").text(),
+                    "message": $messageInput.val()
+                })
+            }).done(function (data, status) {
+                $('<li>').text(data.message).addClass('my-chat').appendTo($chatList);
+                $('<small>').text(moment(data.sentDateTime, "YYYY-MM-DD`T`hh:mm").format('YY-MM-DD hh:mm A'))
+                    .addClass('my-chat-time').addClass('text-muted').appendTo($chatList);
+                $messageInput.val('');
+            });
+        });
+    });
+</script>
 
 </body>
 </html>

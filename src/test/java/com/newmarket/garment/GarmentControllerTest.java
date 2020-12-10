@@ -249,7 +249,7 @@ class GarmentControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("garment/details"))
-                .andExpect(model().attributeExists("garment")).andReturn();
+                .andExpect(model().attributeExists("garment", "chatRoomList")).andReturn();
 
         Garment garment = (Garment) result.getModelAndView().getModel().get("garment");
         assertEquals(garment.getTitle(), "제목(3)");

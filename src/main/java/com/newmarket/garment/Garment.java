@@ -41,4 +41,8 @@ public class Garment {
 
     private LocalDateTime closedDateTime;
 
+    public boolean checkIfValidAccessToModify(Account account) {
+        return !this.closed && this.account.equals(account) && account.isEmailVerified();
+    }
+
 }
