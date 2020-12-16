@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.newmarket.MockMvcTest;
 import com.newmarket.account.*;
 import com.newmarket.area.AreaRepository;
-import com.newmarket.garment.form.CityCountryDistrictForm;
-import com.newmarket.garment.form.CityProvinceForm;
-import com.newmarket.garment.form.GarmentForm;
+import com.newmarket.chatRoom.ChatRoom;
+import com.newmarket.chatRoom.ChatRoomRepository;
+import com.newmarket.chatRoom.ChatRoomService;
+import com.newmarket.chatRoom.form.MessageForm;
+import com.newmarket.garment.form.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,8 +43,11 @@ class GarmentControllerTest {
     @Autowired private ObjectMapper objectMapper;
     @Autowired private AccountFactory accountFactory;
     @Autowired private AccountRepository accountRepository;
+    @Autowired private ChatRoomService chatRoomService;
+    @Autowired private ChatRoomRepository chatRoomRepository;
 
     private final String TEST_EMAIL = "test@email.com";
+    private final String TEST_EMAIL2 = "test2@email.com";
     private final String CITY_PROVINCE = "서울특별시";
     private final String CITY_COUNTRY_DISTRICT = "광진구";
     private final String TOWN_TOWNSHIP_NEIGHBORHOOD = "화양동";
@@ -424,5 +429,149 @@ class GarmentControllerTest {
 
         assertTrue(garmentRepository.findById(garment.getId()).isEmpty());
     }
+
+    @DisplayName("채팅방에서 채팅 보내지고 화면에 표시되는지 확인")
+    @WithAccount(TEST_EMAIL)
+    @Test
+    public void sendChatMessage() throws Exception {
+        accountFactory.createAccount("테스트계정2", TEST_EMAIL2);
+        accountFactory.verifyEmail(TEST_EMAIL);
+        accountFactory.verifyEmail(TEST_EMAIL2);
+        Account me = accountRepository.findByEmail(TEST_EMAIL);
+        Account partner = accountRepository.findByEmail(TEST_EMAIL2);
+
+        // 내가 구매자인 경우
+        garmentFactory.createGarment(1, partner,
+                CITY_PROVINCE, CITY_COUNTRY_DISTRICT, TOWN_TOWNSHIP_NEIGHBORHOOD);
+        Garment garment = garmentRepository.findByTitle("제목(1)").get(0);
+
+        chatRoomService.findOrCreateNew(me, partner, "seller", garment);
+        ChatRoomForm chatRoomForm = new ChatRoomForm();
+        chatRoomForm.setSellerNickname(partner.getNickname());
+        chatRoomForm.setBuyerNickname(me.getNickname());
+        chatRoomForm.setMessage("안녕하세요~!");
+
+        String responseString = mockMvc.perform(post("/garment/" + garment.getId() + "/chat")
+                    .characterEncoding("utf8")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(chatRoomForm))
+                    .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "application/json; charset=utf-8"))
+                .andExpect(authenticated().withUsername(TEST_EMAIL))
+                .andReturn().getResponse().getContentAsString();
+
+        MessageForm responseContent = objectMapper.readValue(responseString, MessageForm.class);
+        assertEquals(responseContent.getNickname(), me.getNickname());
+        assertEquals(responseContent.getMessage(), "안녕하세요~!");
+        assertEquals(responseContent.isMe(), true);
+
+        ChatRoom chatRoom = chatRoomRepository.findBySellerAndBuyerAndGarment(partner, me, garment);
+        assertEquals(chatRoom.getChatList().get(0).getSender().getNickname(), me.getNickname());
+        assertEquals(chatRoom.getChatList().get(0).getMessage(), "안녕하세요~!");
+
+        // 내가 판매자인 경우
+        garmentFactory.createGarment(2, me,
+                CITY_PROVINCE, CITY_COUNTRY_DISTRICT, TOWN_TOWNSHIP_NEIGHBORHOOD);
+        Garment garment2 = garmentRepository.findByTitle("제목(2)").get(0);
+
+        chatRoomService.findOrCreateNew(me, partner, "buyer", garment2);
+        ChatRoomForm chatRoomForm2 = new ChatRoomForm();
+        chatRoomForm2.setSellerNickname(me.getNickname());
+        chatRoomForm2.setBuyerNickname(partner.getNickname());
+        chatRoomForm2.setMessage("테스트메시지입니다.");
+
+        String responseString2 = mockMvc.perform(post("/garment/" + garment2.getId() + "/chat")
+                    .characterEncoding("utf8")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(chatRoomForm2))
+                    .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "application/json; charset=utf-8"))
+                .andExpect(authenticated().withUsername(TEST_EMAIL))
+                .andReturn().getResponse().getContentAsString();
+
+        MessageForm responseContent2 = objectMapper.readValue(responseString2, MessageForm.class);
+        assertEquals(responseContent2.getNickname(), me.getNickname());
+        assertEquals(responseContent2.getMessage(), "테스트메시지입니다.");
+        assertEquals(responseContent2.isMe(), true);
+
+        ChatRoom chatRoom2 = chatRoomRepository.findBySellerAndBuyerAndGarment(me, partner, garment2);
+        assertEquals(chatRoom2.getChatList().get(0).getSender().getNickname(), me.getNickname());
+        assertEquals(chatRoom2.getChatList().get(0).getMessage(), "테스트메시지입니다.");
+    }
+
+    @DisplayName("채팅방 입장시 없으면 채팅방 만들고 있으면 이전 채팅 메시지 불러오는지 확인")
+    @WithAccount(TEST_EMAIL)
+    @Test
+    public void getChatList() throws Exception {
+        accountFactory.createAccount("테스트계정2", TEST_EMAIL2);
+        accountFactory.verifyEmail(TEST_EMAIL);
+        accountFactory.verifyEmail(TEST_EMAIL2);
+        Account me = accountRepository.findByEmail(TEST_EMAIL);
+        Account partner = accountRepository.findByEmail(TEST_EMAIL2);
+
+        garmentFactory.createGarment(1, partner,
+                CITY_PROVINCE, CITY_COUNTRY_DISTRICT, TOWN_TOWNSHIP_NEIGHBORHOOD);
+        Garment garment = garmentRepository.findByTitle("제목(1)").get(0);
+
+        // 채팅방 개설
+        ChatPartnerForm chatPartnerForm = new ChatPartnerForm();
+        chatPartnerForm.setBuyerOrSeller("seller");
+        chatPartnerForm.setNickname(partner.getNickname());
+
+        String responseString = mockMvc.perform(post("/garment/" + garment.getId() + "/chatList")
+                    .characterEncoding("utf8")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(chatPartnerForm))
+                    .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "application/json; charset=utf-8"))
+                .andExpect(authenticated().withUsername(TEST_EMAIL))
+                .andReturn().getResponse().getContentAsString();
+
+        ChatRoom chatRoom = chatRoomRepository.findBySellerAndBuyerAndGarment(partner, me, garment);
+        assertNotNull(chatRoom);
+        assertEquals(responseString, "[]");
+
+        // 채팅 보내기
+        ChatRoomForm chatRoomForm = new ChatRoomForm();
+        chatRoomForm.setSellerNickname(partner.getNickname());
+        chatRoomForm.setBuyerNickname(me.getNickname());
+        chatRoomForm.setMessage("안녕하세요~!");
+
+        mockMvc.perform(post("/garment/" + garment.getId() + "/chat")
+                    .characterEncoding("utf8")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(chatRoomForm))
+                    .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "application/json; charset=utf-8"))
+                .andExpect(authenticated().withUsername(TEST_EMAIL));
+
+        // 채팅 메시지 불러오기
+        String responseString2 = mockMvc.perform(post("/garment/" + garment.getId() + "/chatList")
+                    .characterEncoding("utf8")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(chatPartnerForm))
+                    .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "application/json; charset=utf-8"))
+                .andExpect(authenticated().withUsername(TEST_EMAIL))
+                .andReturn().getResponse().getContentAsString();
+
+        List<MessageForm> messageFormList = objectMapper.readValue(responseString2,
+                objectMapper.getTypeFactory().constructCollectionType(List.class, MessageForm.class));
+        assertEquals(messageFormList.get(0).getNickname(), me.getNickname());
+        assertEquals(messageFormList.get(0).getMessage(), "안녕하세요~!");
+        assertEquals(messageFormList.get(0).isMe(), true);
+        assertEquals(chatRoom.getChatList().get(0).getMessage(), "안녕하세요~!");
+    }
+
 
 }
