@@ -51,4 +51,7 @@ public class GarmentService {
         garmentRepository.save(garment);
     }
 
+    public void closeGarment(Garment garment) {
+        garment.setClosed(true);
+    }
 }

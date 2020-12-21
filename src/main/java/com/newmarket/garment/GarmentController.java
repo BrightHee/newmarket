@@ -229,7 +229,7 @@ public class GarmentController {
         Garment garment = garmentRepository.findWithAccountById(id).orElseThrow();
         Account seller = accountRepository.findByNickname(chatRoomForm.getSellerNickname());
         Account buyer = accountRepository.findByNickname(chatRoomForm.getBuyerNickname());
-        if (!seller.canChatFor(buyer)) {
+        if (!seller.canChatFor(buyer) || garment.isClosed()) {
             return ResponseEntity.badRequest().build();
         }
         ChatRoom chatRoom = chatRoomRepository.findBySellerAndBuyerAndGarment(seller, buyer, garment);
@@ -253,11 +253,31 @@ public class GarmentController {
             return ResponseEntity.badRequest().build();
         }
         ChatRoom chatRoom = chatRoomService.findOrCreateNew(account, partner, chatPartnerForm.getBuyerOrSeller(), garment);
+        if (chatRoom == null) {
+            return ResponseEntity.badRequest().build();
+        }
         List<MessageForm> chatList = chatRoom.getChatList().stream().map(chat -> MessageForm.builder()
                 .nickname(chat.getSender().getNickname()).me(chat.getSender().equals(account)).message(chat.getMessage())
                 .sentDateTime(chat.getSentDateTime()).build()).collect(Collectors.toList());
         return ResponseEntity.ok().header("Content-Type", "application/json; charset=utf-8")
                 .body(chatList);
+    }
+
+    @PostMapping("/garment/{id}/close")
+    public String closeGarment(@PathVariable Long id, @AuthenticatedAccount Account account,
+                               Model model, RedirectAttributes attributes) {
+        Garment garment = garmentRepository.findWithAccountById(id).orElseThrow();
+        if (!garment.getAccount().equals(account) || garment.isClosed()) {
+            model.addAttribute("errorMessage", "잘못된 요청입니다.");
+            model.addAttribute("garment", garment);
+            if (account.equals(garment.getAccount())) {
+                model.addAttribute("chatRoomList", chatRoomRepository.findByGarmentAndSeller(garment, account));
+            }
+            return "garment/details";
+        }
+        garmentService.closeGarment(garment);
+        attributes.addFlashAttribute("successMessage", "해당 물품이 판매 종료 상태로 변경되었습니다.");
+        return "redirect:/garments/management";
     }
 
 }

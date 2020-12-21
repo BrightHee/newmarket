@@ -573,5 +573,34 @@ class GarmentControllerTest {
         assertEquals(chatRoom.getChatList().get(0).getMessage(), "안녕하세요~!");
     }
 
+    @DisplayName("판매 종료하기")
+    @WithAccount(TEST_EMAIL)
+    @Test
+    public void closeGarment() throws Exception {
+        accountFactory.verifyEmail(TEST_EMAIL);
+        Account account = accountRepository.findByEmail(TEST_EMAIL);
+        garmentFactory.createGarment(1, account,
+                CITY_PROVINCE, CITY_COUNTRY_DISTRICT, TOWN_TOWNSHIP_NEIGHBORHOOD);
+        Garment garment = garmentRepository.findByTitle("제목(1)").get(0);
+
+        mockMvc.perform(post("/garment/" + garment.getId() + "/close")
+                    .with(csrf()))
+                .andDo(print())
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/garments/management"))
+                .andExpect(flash().attributeExists("successMessage"))
+                .andExpect(authenticated().withUsername(TEST_EMAIL));
+
+        assertTrue(garment.isClosed());
+
+        // 판매 종료된 상태로 요청
+        mockMvc.perform(post("/garment/" + garment.getId() + "/close")
+                    .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("garment/details"))
+                .andExpect(model().attributeExists("errorMessage", "garment", "chatRoomList"))
+                .andExpect(authenticated().withUsername(TEST_EMAIL));
+    }
 
 }

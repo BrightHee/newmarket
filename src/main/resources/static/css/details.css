@@ -1,0 +1,78 @@
+.container {
+    max-width: 100%;
+}
+.modal-dialog,
+.modal-content {
+    height: 80%;
+}
+.modal-body {
+    height: 80%;
+    overflow-y: auto;
+}
+.chat-list-group {
+    display: inline-block;
+    width: 100%;
+}
+.your-chat {
+    display: inline-block;
+    position: relative;
+    left: 20px;
+    background: #57f1ff;
+    border: 0;
+    border-radius: .4em;
+    max-width: calc(100% - 20px);
+    float: left;
+    clear: both;
+    padding: 0.75rem 1rem;
+}
+.your-chat:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 0;
+    height: 0;
+    border: 20px solid transparent;
+    border-right-color: #57f1ff;
+    border-left: 0;
+    margin-top: -20px;
+    margin-left: -20px;
+}
+.my-chat {
+    display: inline-block;
+    position: relative;
+    right: 20px;
+    background: #ffe957;
+    border: 0;
+    border-radius: .4em;
+    max-width: calc(100% - 20px);
+    float: right;
+    clear: both;
+    padding: 0.75rem 1rem;
+}
+.my-chat:after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 0;
+    height: 0;
+    border: 20px solid transparent;
+    border-left-color: #ffe957;
+    border-right: 0;
+    margin-top: -20px;
+    margin-right: -20px;
+}
+.your-chat-time {
+    left: 20px;
+    float: left;
+    clear: both;
+    margin-left: 20px;
+    margin-bottom: 7px;
+}
+.my-chat-time {
+    float: right;
+    clear: both;
+    margin-bottom: 7px;
+    margin-right: 20px;
+}

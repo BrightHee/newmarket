@@ -22,6 +22,9 @@ public class ChatRoomService {
 
         ChatRoom chatRoom = chatRoomRepository.findBySellerAndBuyerAndGarment(seller, buyer, garment);
         if (chatRoom == null) {
+            if (garment.isClosed() || seller.equals(me)) {  // 잘못된 요청에 대한 처리
+                return null;
+            }
             ChatRoom newChatRoom = ChatRoom.builder()
                     .seller(seller).buyer(buyer).garment(garment).build();
             chatRoom = chatRoomRepository.save(newChatRoom);
