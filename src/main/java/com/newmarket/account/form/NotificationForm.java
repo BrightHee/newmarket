@@ -11,12 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class NotificationForm {
 
-    private boolean purchaseRegisteredByWeb;
+    private boolean sentSellerChatMessages;
 
-    private boolean purchaseRegisteredByEmail;
-
-    private boolean purchaseResultByWeb;
-
-    private boolean purchaseResultByEmail;
+    private boolean sentBuyerChatMessages;
 
 }

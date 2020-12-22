@@ -127,10 +127,8 @@ public class SettingsController {
     @GetMapping("/notification")
     public String notificationForm(@AuthenticatedAccount Account account, Model model) {
         NotificationForm notificationForm = NotificationForm.builder()
-                .purchaseRegisteredByWeb(account.isPurchaseRegisteredByWeb())
-                .purchaseRegisteredByEmail(account.isPurchaseRegisteredByEmail())
-                .purchaseResultByWeb(account.isPurchaseResultByWeb())
-                .purchaseResultByEmail(account.isPurchaseResultByEmail())
+                .sentSellerChatMessages(account.isSentSellerChatMessages())
+                .sentBuyerChatMessages(account.isSentBuyerChatMessages())
                 .build();
         model.addAttribute("notificationForm", notificationForm);
         return "account/settings/notification";

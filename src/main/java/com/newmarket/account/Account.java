@@ -38,17 +38,11 @@ public class Account {
     @Lob
     private String profileImage;
 
-    // 판매자가 구매 신청을 받으면 알림으로 받을 것인지 결정
     @Builder.Default
-    private boolean purchaseRegisteredByWeb = true;
+    private boolean sentSellerChatMessages = true;
 
-    private boolean purchaseRegisteredByEmail;
-
-    // 구매자가 구매 신청 결과를 받으면 알림으로 받을 것인지 결정
     @Builder.Default
-    private boolean purchaseResultByWeb = true;
-
-    private boolean purchaseResultByEmail;
+    private boolean sentBuyerChatMessages = true;
 
     public void createCertificationToken() {
         this.certificationToken = UUID.randomUUID().toString();

@@ -135,10 +135,8 @@ public class AccountService implements UserDetailsService {
     }
 
     public void updateNotificationSettings(Account account, NotificationForm notificationForm) {
-        account.setPurchaseRegisteredByWeb(notificationForm.isPurchaseRegisteredByWeb());
-        account.setPurchaseRegisteredByEmail(notificationForm.isPurchaseRegisteredByEmail());
-        account.setPurchaseResultByWeb(notificationForm.isPurchaseResultByWeb());
-        account.setPurchaseResultByEmail(notificationForm.isPurchaseResultByEmail());
+        account.setSentSellerChatMessages(notificationForm.isSentSellerChatMessages());
+        account.setSentBuyerChatMessages(notificationForm.isSentBuyerChatMessages());
         accountRepository.save(account);
     }
 }

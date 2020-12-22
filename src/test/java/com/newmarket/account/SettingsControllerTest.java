@@ -309,10 +309,8 @@ class SettingsControllerTest {
     @Test
     public void updateNotificationSettings() throws Exception {
         mockMvc.perform(post("/settings/notification")
-                    .param("purchaseRegisteredByWeb", "false")
-                    .param("purchaseRegisteredByEmail", "true")
-                    .param("purchaseResultByWeb", "true")
-                    .param("purchaseResultByEmail", "true")
+                    .param("sentSellerChatMessages", "false")
+                    .param("sentBuyerChatMessages", "true")
                     .with(csrf()))
                 .andDo(print())
                 .andExpect(status().is3xxRedirection())
@@ -321,10 +319,8 @@ class SettingsControllerTest {
                 .andExpect(authenticated().withUsername(TEST_EMAIL));
 
         Account account = accountRepository.findByEmail(TEST_EMAIL);
-        assertEquals(account.isPurchaseRegisteredByWeb(), false);
-        assertEquals(account.isPurchaseRegisteredByEmail(), true);
-        assertEquals(account.isPurchaseResultByWeb(), true);
-        assertEquals(account.isPurchaseResultByEmail(), true);
+        assertEquals(account.isSentSellerChatMessages(), false);
+        assertEquals(account.isSentBuyerChatMessages(), true);
     }
 
 }
