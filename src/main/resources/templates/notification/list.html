@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:include="fragments.html :: head" th:remove="tag"></div>
+    <style>
+        .container {
+            max-width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav th:replace="fragments.html :: main-nav"></nav>
+
+<div class="container my-3">
+    <div th:replace="fragments.html :: notifications-menu"></div>
+    <div class="bg-light border-dark p-5">
+        <div class="row justify-content-between">
+            <div class="col-sm-3 p-4">
+                <ul class="list-group mt-4">
+                    <a href="#" th:if="${sellerChatNotifications.size() > 0}"
+                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        판매자로부터 알림
+                        <span th:text="${sellerChatNotifications.size()}">0</span>
+                    </a>
+                    <a href="#" th:if="${buyerChatNotifications.size() > 0}"
+                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        구매자로부터 알림
+                        <span th:text="${buyerChatNotifications.size()}">0</span>
+                    </a>
+                </ul>
+                <ul class="list-group mt-4" th:if="${numberOfChecked > 0}">
+                    <form th:action="@{/notifications/delete}" method="post">
+                        <button type="submit" class="btn btn-block btn-outline-danger">
+                            확인한 알림 삭제하기
+                        </button>
+                    </form>
+                </ul>
+            </div>
+            <div class="col-sm-7 p-4">
+                <div class="card" th:if="${notifications.size() == 0}">
+                    <div class="card-header">
+                        알림 메시지가 없습니다.
+                    </div>
+                </div>
+                <div class="card" th:if="${sellerChatNotifications.size() > 0}">
+                    <div class="card-header">
+                        판매자로부터 채팅 메시지가 있습니다.
+                    </div>
+                    <div th:replace="fragments.html :: notification-list (notifications=${sellerChatNotifications})"></div>
+                </div>
+                <div class="card mt-4" th:if="${buyerChatNotifications.size() > 0}">
+                    <div class="card-header">
+                        구매자로부터 채팅 메시지가 있습니다.
+                    </div>
+                    <div th:replace="fragments.html :: notification-list (notifications=${buyerChatNotifications})"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="fragments.html :: main-footer"></footer>
+<script th:replace="fragments.html :: korea-date-time"></script>
+
+</body>
+</html>

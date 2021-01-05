@@ -38,9 +38,11 @@ public class Account {
     @Lob
     private String profileImage;
 
+    // 판매자 채팅 수신을 알림으로 받을지 결정
     @Builder.Default
     private boolean sentSellerChatMessages = true;
 
+    // 구매자 채팅 수신을 알림으로 받을지 결정
     @Builder.Default
     private boolean sentBuyerChatMessages = true;
 

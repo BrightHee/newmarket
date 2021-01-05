@@ -1,9 +1,12 @@
 package com.newmarket.chatRoom;
 
 import com.newmarket.account.Account;
+import com.newmarket.chatRoom.event.BuyerChatSendEvent;
+import com.newmarket.chatRoom.event.SellerChatSendEvent;
 import com.newmarket.garment.Garment;
 import com.newmarket.garment.form.ChatRoomForm;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +18,7 @@ import java.time.LocalDateTime;
 public class ChatRoomService {
 
     private final ChatRoomRepository chatRoomRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public ChatRoom findOrCreateNew(Account me, Account partner, String partnerType, Garment garment) {
         Account seller = partnerType.equals("seller") ? partner : me;
@@ -38,6 +42,8 @@ public class ChatRoomService {
         chat.setMessage(chatRoomForm.getMessage());
         chat.setSentDateTime(LocalDateTime.now());
         chatRoom.addChat(chat);
+        if (account.getNickname().equals(chatRoomForm.getSellerNickname())) eventPublisher.publishEvent(new SellerChatSendEvent(chat, chatRoom));
+        else eventPublisher.publishEvent(new BuyerChatSendEvent(chat, chatRoom));
         return chat;
     }
 
