@@ -71,8 +71,8 @@
                 <div th:if="${account.equals(garment.account)}">
                     <hr />
                     <p class="lead text-center"> <span class="h6">구매 희망자와 채팅하기</span> </p>
-                    <p th:if="${chatRoomList.isEmpty()}" class="text-center"> <span class="text-muted">없음</span> </p>
-                    <button th:each="chatRoom : ${chatRoomList}" th:text="${chatRoom.buyer.nickname}"
+                    <p th:if="${chatRoomPartnerList.isEmpty()}" class="text-center"> <span class="text-muted">없음</span> </p>
+                    <button th:each="chatRoomPartner : ${chatRoomPartnerList}" th:text="${chatRoomPartner.nickname}"
                             class="btn btn-info mr-2 buyer-chat-room-btn" data-toggle="modal" data-target="#chat-room"></button>
                 </div>
             </div>
