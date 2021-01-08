@@ -1,6 +1,7 @@
 package com.newmarket.modules.chatRoom;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.newmarket.infra.ContainerBaseTest;
 import com.newmarket.infra.MockMvcTest;
 import com.newmarket.modules.account.Account;
 import com.newmarket.modules.account.AccountFactory;
@@ -30,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @MockMvcTest
-class ChatRoomControllerTest {
+class ChatRoomControllerTest extends ContainerBaseTest {
 
     @Autowired private MockMvc mockMvc;
     @Autowired private GarmentFactory garmentFactory;

@@ -1,5 +1,6 @@
 package com.newmarket.modules.notification;
 
+import com.newmarket.infra.ContainerBaseTest;
 import com.newmarket.infra.MockMvcTest;
 import com.newmarket.modules.account.WithAccount;
 import org.junit.jupiter.api.DisplayName;
@@ -17,7 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 @MockMvcTest
-class NotificationControllerTest {
+class NotificationControllerTest extends ContainerBaseTest {
 
     @Autowired MockMvc mockMvc;
     @Autowired

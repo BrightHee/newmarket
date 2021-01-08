@@ -1,6 +1,7 @@
 package com.newmarket.modules.garment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.newmarket.infra.ContainerBaseTest;
 import com.newmarket.infra.MockMvcTest;
 import com.newmarket.modules.account.Account;
 import com.newmarket.modules.account.AccountFactory;
@@ -29,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @MockMvcTest
-class GarmentControllerTest {
+class GarmentControllerTest extends ContainerBaseTest {
 
     @Autowired private MockMvc mockMvc;
     @Autowired private GarmentFactory garmentFactory;
@@ -246,7 +247,7 @@ class GarmentControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("garment/details"))
-                .andExpect(model().attributeExists("garment", "chatRoomList")).andReturn();
+                .andExpect(model().attributeExists("garment", "chatRoomPartnerList")).andReturn();
 
         Garment garment = (Garment) result.getModelAndView().getModel().get("garment");
         assertEquals(garment.getTitle(), "제목(3)");
@@ -299,15 +300,11 @@ class GarmentControllerTest {
     @WithAccount(TEST_EMAIL)
     @Test
     public void updateGarment_not_exist() throws Exception {
-        NestedServletException exception = assertThrows(NestedServletException.class, () -> {
-            mockMvc.perform(get("/garment/" + 1 + "/update"))
-                    .andDo(print())
-                    .andExpect(status().is4xxClientError())
-                    .andExpect(view().name("garment/management"))
-                    .andExpect(model().attributeExists("account", "errorMessage"))
-                    .andExpect(authenticated().withUsername(TEST_EMAIL));
-        });
-        assertTrue(exception.getCause().toString().contains("NoSuchElementException"));
+        mockMvc.perform(get("/garment/" + 1 + "/update"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(view().name("error"))
+                .andExpect(authenticated().withUsername(TEST_EMAIL));
     }
 
     @DisplayName("옷 게시글 수정 화면 접근 실패 - 판매종료된 게시글, 작성자와 다른 아이디로 접근")
@@ -448,7 +445,7 @@ class GarmentControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("garment/details"))
-                .andExpect(model().attributeExists("errorMessage", "garment", "chatRoomList"))
+                .andExpect(model().attributeExists("errorMessage", "garment", "chatRoomPartnerList"))
                 .andExpect(authenticated().withUsername(TEST_EMAIL));
     }
 

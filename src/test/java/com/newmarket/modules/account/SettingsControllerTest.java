@@ -1,5 +1,6 @@
 package com.newmarket.modules.account;
 
+import com.newmarket.infra.ContainerBaseTest;
 import com.newmarket.infra.MockMvcTest;
 import com.newmarket.modules.account.form.ProfileForm;
 import com.newmarket.infra.mail.EmailMessage;
@@ -25,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @MockMvcTest
-class SettingsControllerTest {
+class SettingsControllerTest extends ContainerBaseTest {
 
     @Autowired MockMvc mockMvc;
     @Autowired AccountFactory accountFactory;
